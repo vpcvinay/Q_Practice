@@ -39,6 +39,7 @@
   --c-z:#2f63cb;
   --c-state:#c07c09;
   --c-guide:#767d94;
+  --c-base:#98a0b8;
   --c-sph1:rgba(255,255,255,0.92);
   --c-sph2:rgba(122,143,196,0.20);
 
@@ -76,6 +77,8 @@
     --c-z:#6f9bfa;
     --c-state:#f5b53f;
     --c-guide:#8a93af;
+  --c-base:#8e97b3;
+    --c-base:#8e97b3;
     --c-sph1:rgba(160,180,235,0.13);
     --c-sph2:rgba(60,80,150,0.08);
 
@@ -109,6 +112,7 @@
   --c-z:#6f9bfa;
   --c-state:#f5b53f;
   --c-guide:#8a93af;
+  --c-base:#8e97b3;
   --c-sph1:rgba(160,180,235,0.13);
   --c-sph2:rgba(60,80,150,0.08);
 
@@ -196,6 +200,7 @@ body{
 }
 .legend span{display:inline-flex;align-items:center;gap:6px}
 .swatch{width:14px;height:2px;border-radius:1px;display:inline-block}
+.swatch-dash{background:repeating-linear-gradient(90deg,var(--c-base) 0 4px,transparent 4px 7px)}
 .legend .hint{margin-left:auto;color:var(--ink-3)}
 
 /* ---- controls ---- */
@@ -240,6 +245,23 @@ body{
 .toggles{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:12px;padding-top:11px;border-top:1px solid var(--rule-soft)}
 .toggles label{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-2);cursor:pointer}
 .toggles input{accent-color:var(--accent);margin:0}
+
+.derived{border-top:1px solid var(--rule-soft);padding:11px 14px}
+.derived .hd{
+  font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;
+  text-transform:uppercase;color:var(--ink-3);margin-bottom:8px;
+}
+.derived .grid{display:grid;grid-template-columns:1fr 1fr;gap:9px 12px}
+.derived .k{
+  font-family:var(--font-math);font-style:italic;font-size:13px;
+  color:var(--ink-3);display:block;margin-bottom:1px;
+}
+.derived .v{
+  font-family:var(--font-mono);font-size:13.5px;color:var(--ink);
+  font-variant-numeric:tabular-nums;
+}
+.derived .wide{grid-column:1 / -1}
+.derived .wide .v{font-size:12.5px;color:var(--ink-2)}
 
 .callout{
   margin:0;padding:9px 14px;font-size:12px;line-height:1.45;color:var(--ink-2);
@@ -331,7 +353,7 @@ body{
     <div>
       <span class="eyebrow">Single qubit &middot; pure state</span>
       <h1>Bloch Sphere Bench</h1>
-      <p>Three independent view rotations for looking at the sphere, and a separate pair of state angles that actually define <span class="mvar">&psi;</span>. The two never touch each other.</p>
+      <p>The sphere, its axes and its labels hold still. Three angles swing the arrow itself about <b>x</b>, <b>y</b> and <b>z</b>, while a separate pair of state angles defines the <span class="mvar">&psi;</span> the equation below is written from.</p>
     </div>
     <button class="theme-btn" id="themeBtn" type="button">Dark</button>
   </header>
@@ -344,7 +366,7 @@ body{
       <section class="panel">
         <header>
           <h2>Viewport</h2>
-          <span class="note" id="viewNote">orient X 0&deg; &middot; Y 0&deg; &middot; Z 0&deg;</span>
+          <span class="note" id="viewNote"></span>
         </header>
         <div class="viewport">
           <span class="viewport-tag">orthonormal frame</span>
@@ -354,8 +376,9 @@ body{
           <span><i class="swatch" style="background:var(--ax-x)"></i> x &mdash; <span class="ket">|+&rang;</span>/<span class="ket">|&minus;&rang;</span></span>
           <span><i class="swatch" style="background:var(--ax-y)"></i> y &mdash; <span class="ket">|+i&rang;</span>/<span class="ket">|&minus;i&rang;</span></span>
           <span><i class="swatch" style="background:var(--ax-z)"></i> z &mdash; <span class="ket">|0&rang;</span>/<span class="ket">|1&rang;</span></span>
-          <span><i class="swatch" style="background:var(--state);height:3px"></i> state vector</span>
-          <span class="hint">drag to orbit</span>
+          <span><i class="swatch" style="background:var(--state);height:3px"></i> arrow</span>
+          <span id="legBase" hidden><i class="swatch swatch-dash"></i> unrotated <span class="ket">|&psi;&rang;</span></span>
+          <span class="hint">drag the arrow</span>
         </div>
       </section>
 
@@ -412,48 +435,55 @@ body{
 
       <section class="panel">
         <header>
-          <h2>View orientation</h2>
+          <h2>Vector rotation</h2>
           <span class="note">visual only</span>
         </header>
         <div class="panel-body">
 
           <div class="ctrl axis">
             <span class="tag x">X</span>
-            <span class="lab">Rotate about <b>x</b> &mdash; the <span class="ket">|+&rang;</span>&ndash;<span class="ket">|&minus;&rang;</span> axis</span>
+            <span class="lab">Swing the arrow about <b>x</b> &mdash; the <span class="ket">|+&rang;</span>&ndash;<span class="ket">|&minus;&rang;</span> axis</span>
             <span class="num"><input type="number" id="vxNum" min="-180" max="180" step="1" value="0" aria-label="Rotation about x in degrees">&deg;</span>
-            <input type="range" class="x" id="vx" min="-180" max="180" step="1" value="0" aria-label="Rotate view about x">
+            <input type="range" class="x" id="vx" min="-180" max="180" step="1" value="0" aria-label="Rotate the arrow about x">
             <div class="range-scale"><span>&minus;180&deg;</span><span>0&deg;</span><span>+180&deg;</span></div>
           </div>
 
           <div class="ctrl axis">
             <span class="tag y">Y</span>
-            <span class="lab">Rotate about <b>y</b> &mdash; the <span class="ket">|+i&rang;</span>&ndash;<span class="ket">|&minus;i&rang;</span> axis</span>
+            <span class="lab">Swing the arrow about <b>y</b> &mdash; the <span class="ket">|+i&rang;</span>&ndash;<span class="ket">|&minus;i&rang;</span> axis</span>
             <span class="num"><input type="number" id="vyNum" min="-180" max="180" step="1" value="0" aria-label="Rotation about y in degrees">&deg;</span>
-            <input type="range" class="y" id="vy" min="-180" max="180" step="1" value="0" aria-label="Rotate view about y">
+            <input type="range" class="y" id="vy" min="-180" max="180" step="1" value="0" aria-label="Rotate the arrow about y">
             <div class="range-scale"><span>&minus;180&deg;</span><span>0&deg;</span><span>+180&deg;</span></div>
           </div>
 
           <div class="ctrl axis">
             <span class="tag z">Z</span>
-            <span class="lab">Rotate about <b>z</b> &mdash; the <span class="ket">|0&rang;</span>&ndash;<span class="ket">|1&rang;</span> axis</span>
+            <span class="lab">Swing the arrow about <b>z</b> &mdash; the <span class="ket">|0&rang;</span>&ndash;<span class="ket">|1&rang;</span> axis</span>
             <span class="num"><input type="number" id="vzNum" min="-180" max="180" step="1" value="0" aria-label="Rotation about z in degrees">&deg;</span>
-            <input type="range" class="z" id="vz" min="-180" max="180" step="1" value="0" aria-label="Rotate view about z">
+            <input type="range" class="z" id="vz" min="-180" max="180" step="1" value="0" aria-label="Rotate the arrow about z">
             <div class="range-scale"><span>&minus;180&deg;</span><span>0&deg;</span><span>+180&deg;</span></div>
           </div>
 
           <div class="btnrow">
             <button class="btn" type="button" id="resetView">Reset to 0&deg;, 0&deg;, 0&deg;</button>
-            <button class="btn" type="button" id="topView">Pole&#8209;on, down <b>z</b></button>
           </div>
 
           <div class="toggles">
             <label><input type="checkbox" id="tGrid" checked> Lat/long mesh</label>
             <label><input type="checkbox" id="tGuides" checked> &theta;/&phi; guides</label>
             <label><input type="checkbox" id="tLabels" checked> Labels</label>
-            <label><input type="checkbox" id="tSpin"> Auto-spin z</label>
+            <label><input type="checkbox" id="tSpin"> Precess about z</label>
           </div>
         </div>
-        <p class="callout">Applied in the order <b>R<sub>x</sub>&middot;R<sub>y</sub>&middot;R<sub>z</sub></b> to the sphere itself. This only turns the camera on the picture &mdash; <b>&psi;</b>, its angles and every number below are untouched.</p>
+        <div class="derived">
+          <div class="hd">Arrow now points at</div>
+          <div class="grid">
+            <div><span class="k">&theta;&prime;</span><span class="v" id="dTh"></span></div>
+            <div><span class="k">&phi;&prime;</span><span class="v" id="dPh"></span></div>
+            <div class="wide"><span class="k">r&prime;</span><span class="v" id="dR"></span></div>
+          </div>
+        </div>
+        <p class="callout">Applied in the order <b>R<sub>x</sub>&middot;R<sub>y</sub>&middot;R<sub>z</sub></b> to the arrow alone. The sphere, its axes and its labels never move, and <b>&theta;&prime;/&phi;&prime;</b> above are only where the drawing points &mdash; the state, its equation and every number below stay exactly as the panel underneath sets them.</p>
       </section>
 
       <section class="panel">
@@ -493,7 +523,7 @@ body{
     </div>
   </div>
 
-  <p class="foot">Legal ranges are enforced: the state angles live on <code>&theta; &isin; [0&deg;, 180&deg;]</code> and <code>&phi; &isin; [0&deg;, 360&deg;)</code>, which covers the sphere exactly once. The three view angles wrap freely on <code>[&minus;180&deg;, 180&deg;]</code> because rotating the picture is not a physical operation on the qubit.</p>
+  <p class="foot">Legal ranges are enforced: the state angles live on <code>&theta; &isin; [0&deg;, 180&deg;]</code> and <code>&phi; &isin; [0&deg;, 360&deg;)</code>, which covers the sphere exactly once. The three rotation angles wrap freely on <code>[&minus;180&deg;, 180&deg;]</code>. Once any of them is non-zero the unrotated <span class="ket">|&psi;&rang;</span> stays on the sphere as a dashed marker, so the arrow the equation describes is always still visible.</p>
 </div>
 
 <script>
@@ -524,24 +554,25 @@ body{
   function unit(a){ var n = Math.hypot(a[0],a[1],a[2]) || 1; return [a[0]/n, a[1]/n, a[2]/n]; }
 
   /* ---------------- fixed camera ----------------
-     A three-quarter view: azimuth 30 deg, elevation 20 deg. No world axis
-     lies along the line of sight, so all three view sliders start at zero
-     and each one visibly does something different.                        */
+     A three-quarter view: azimuth 30 deg, elevation 20 deg. The frame never
+     moves, so the projection is orthographic: the silhouette is exactly the
+     circle of radius RAD and a screen point inverts back onto the sphere
+     exactly - which is what lets a drag put the arrow under the cursor.    */
   var CAM_AZ = 30 * DEG, CAM_EL = 20 * DEG;
   var CW = [Math.cos(CAM_EL)*Math.cos(CAM_AZ), Math.cos(CAM_EL)*Math.sin(CAM_AZ), Math.sin(CAM_EL)];
   var CR = unit(cross([0,0,1], CW));   // screen right
   var CU = cross(CW, CR);              // screen up
-  var FOCAL = 5;                       // weak perspective, in sphere radii
 
   /* ---------------- state ---------------- */
-  var view = { x: 0, y: 0, z: 0 };     // degrees, visual only
-  var qs   = { th: 60, ph: 120 };      // degrees, the actual qubit
+  var rot  = { x: 0, y: 0, z: 0 };     // degrees, swings the arrow only
+  var qs   = { th: 60, ph: 120 };      // degrees, the qubit the equation is written from
   var opts = { grid: true, guides: true, labels: true, spin: false };
-  var M = [[1,0,0],[0,1,0],[0,0,1]];
+  var MV = [[1,0,0],[0,1,0],[0,0,1]];  // Rx*Ry*Rz - applied to the arrow, never the frame
 
-  function buildM() {
-    M = mul(Rx(view.x*DEG), mul(Ry(view.y*DEG), Rz(view.z*DEG)));
+  function buildMV() {
+    MV = mul(Rx(rot.x*DEG), mul(Ry(rot.y*DEG), Rz(rot.z*DEG)));
   }
+  function isRotated() { return rot.x !== 0 || rot.y !== 0 || rot.z !== 0; }
 
   /* ---------------- canvas ---------------- */
   var canvas = $('sphere'), ctx = canvas.getContext('2d');
@@ -555,6 +586,7 @@ body{
       text: g('--c-text'), dim: g('--c-dim'), wire: g('--c-wire'),
       outline: g('--c-outline'), guide: g('--c-guide'),
       x: g('--c-x'), y: g('--c-y'), z: g('--c-z'), state: g('--c-state'),
+      base: g('--c-base'),
       sph1: g('--c-sph1'), sph2: g('--c-sph2')
     };
   }
@@ -574,10 +606,25 @@ body{
   }
 
   function project(p) {
-    var q = app(M, p);
-    var vx = dot(q, CR), vy = dot(q, CU), vz = dot(q, CW);
-    var s = FOCAL / (FOCAL - vz);
-    return [cx + vx*RAD*s, cy - vy*RAD*s, vz];
+    return [cx + dot(p, CR)*RAD, cy - dot(p, CU)*RAD, dot(p, CW)];
+  }
+
+  /* Screen point -> unit vector on the near hemisphere. Outside the disc the
+     result is clamped to the silhouette, so a drag never jumps or stalls. */
+  function unproject(sx, sy) {
+    var a = (sx - cx)/RAD, b = -(sy - cy)/RAD, r2 = a*a + b*b, c;
+    if (r2 >= 1) { var k = Math.sqrt(r2) || 1; a /= k; b /= k; c = 0; }
+    else c = Math.sqrt(1 - r2);
+    return [CR[0]*a + CU[0]*b + CW[0]*c,
+            CR[1]*a + CU[1]*b + CW[1]*c,
+            CR[2]*a + CU[2]*b + CW[2]*c];
+  }
+
+  /* MV is a rotation, so its inverse is its transpose. */
+  function unrotate(v) {
+    return [MV[0][0]*v[0] + MV[1][0]*v[1] + MV[2][0]*v[2],
+            MV[0][1]*v[0] + MV[1][1]*v[1] + MV[2][1]*v[2],
+            MV[0][2]*v[0] + MV[1][2]*v[1] + MV[2][2]*v[2]];
   }
 
   /* Stroke only the segments of a polyline that sit in the requested depth
@@ -653,9 +700,16 @@ body{
 
   var EX = [1,0,0], EY = [0,1,0], EZ = [0,0,1];
 
-  function blochVector() {
+  function baseVector() {
     var t = qs.th * DEG, f = qs.ph * DEG;
     return [Math.sin(t)*Math.cos(f), Math.sin(t)*Math.sin(f), Math.cos(t)];
+  }
+  function shownVector() { return app(MV, baseVector()); }
+  function polarOf(v) {
+    var t = Math.acos(Math.max(-1, Math.min(1, v[2])));
+    var f = Math.atan2(v[1], v[0]);
+    if (f < 0) f += Math.PI * 2;
+    return [t, f];
   }
 
   /* ---------------- drawing ---------------- */
@@ -687,22 +741,26 @@ body{
     stroke3(segment([0,-L,0], [0,L,0]), layer, PAL.y, 1.6, dash, axisA);
     stroke3(segment([0,0,-L], [0,0,L]), layer, PAL.z, 1.6, dash, axisA);
 
-    var b = blochVector();
-    var t = qs.th * DEG, f = qs.ph * DEG;
+    var v = shownVector(), pol = polarOf(v), t = pol[0], f = pol[1];
 
     if (opts.guides) {
       var radial = [Math.cos(f), Math.sin(f), 0];
-      // theta, swept from +z toward the state
+      // theta, swept from +z down to the arrow
       stroke3(arc(EZ, radial, t, 0.42), layer, PAL.guide, 1.3, back ? [3,4] : [], guideA);
       // phi, swept in the equatorial plane from +x
       stroke3(arc(EX, EY, f, 0.30), layer, PAL.guide, 1.3, back ? [3,4] : [], guideA);
       // drop lines
-      var foot = [b[0], b[1], 0];
-      stroke3(segment(foot, b, 12), layer, PAL.guide, 1, [2,4], guideA);
+      var foot = [v[0], v[1], 0];
+      stroke3(segment(foot, v, 12), layer, PAL.guide, 1, [2,4], guideA);
       stroke3(segment([0,0,0], foot, 12), layer, PAL.guide, 1, [2,4], guideA);
     }
 
-    stroke3(segment([0,0,0], b, 28), layer, PAL.state, 2.6, [], vecA);
+    // the unrotated state keeps a mark on the sphere, so the equation below
+    // always names something you can still see
+    if (isRotated())
+      stroke3(segment([0,0,0], baseVector(), 28), layer, PAL.base, 1.4, [5,4], back ? 0.30 : 0.85);
+
+    stroke3(segment([0,0,0], v, 28), layer, PAL.state, 2.6, [], vecA);
   }
 
   function drawBody() {
@@ -722,7 +780,18 @@ body{
   }
 
   function drawTip() {
-    var b = blochVector();
+    if (isRotated()) {
+      var B = project(baseVector());
+      ctx.save();
+      ctx.globalAlpha = B[2] >= 0 ? 0.9 : 0.4;
+      ctx.strokeStyle = PAL.base;
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.arc(B[0], B[1], Math.max(3, RAD*0.017), 0, Math.PI*2);
+      ctx.stroke();
+      ctx.restore();
+    }
+    var b = shownVector();
     var P = project(b);
     var Q = project([b[0]*0.82, b[1]*0.82, b[2]*0.82]);
     var ang = Math.atan2(P[1] - Q[1], P[0] - Q[0]);
@@ -784,7 +853,8 @@ body{
     label([0,0,-d], '|1⟩',  null, null);
 
     if (!opts.guides) return;
-    var t = qs.th * DEG, f = qs.ph * DEG;
+    var pol = polarOf(shownVector()), t = pol[0], f = pol[1];
+    var prime = isRotated() ? '\u2032' : '';
     var radial = [Math.cos(f), Math.sin(f), 0];
     var hT = 0.53, mt = t/2;
     var pT = project([(EZ[0]*Math.cos(mt) + radial[0]*Math.sin(mt))*hT,
@@ -797,14 +867,14 @@ body{
     ctx.font = 'italic 500 15px ' + FONT_MATH;
     ctx.fillStyle = PAL.guide;
     ctx.globalAlpha = pT[2] >= 0 ? 0.95 : 0.4;
-    if (qs.th > 4) ctx.fillText('θ', pT[0], pT[1]);
+    if (t > 0.07) ctx.fillText('θ' + prime, pT[0], pT[1]);
     ctx.globalAlpha = pP[2] >= 0 ? 0.95 : 0.4;
-    if (qs.ph > 4) ctx.fillText('φ', pP[0], pP[1]);
+    if (f > 0.07) ctx.fillText('φ' + prime, pP[0], pP[1]);
     ctx.restore();
   }
 
   function draw() {
-    buildM();
+    buildMV();
     ctx.clearRect(0, 0, W, H);
     drawLayer('back');
     drawBody();
@@ -838,7 +908,7 @@ body{
     var sb = Math.sin(t/2);
     var br = sb * Math.cos(f), bi = sb * Math.sin(f);
     var p0 = a*a, p1 = sb*sb;
-    var b = blochVector();
+    var b = baseVector();
 
     $('eqnNum').innerHTML =
       '<span class="k">|ψ⟩</span> <span class="op">=</span> ' +
@@ -875,9 +945,19 @@ body{
     $('stateNote').innerHTML = note;
   }
 
-  function updateViewNote() {
-    $('viewNote').textContent = 'orient X ' + n(view.x, 0) + '° · Y ' +
-      n(view.y, 0) + '° · Z ' + n(view.z, 0) + '°';
+  function updateRotation() {
+    buildMV();
+    var on = isRotated();
+    var v = shownVector(), pol = polarOf(v);
+    var th = pol[0] / DEG, ph = pol[1] / DEG;
+
+    $('dTh').textContent = n(th, 1) + '°';
+    $('dPh').textContent = n(ph, 1) + '°';
+    $('dR').textContent = '(' + n(v[0], 3) + ', ' + n(v[1], 3) + ', ' + n(v[2], 3) + ')';
+    $('legBase').hidden = !on;
+    $('viewNote').textContent = on
+      ? 'arrow at θ′ ' + n(th, 1) + '° · φ′ ' + n(ph, 1) + '°'
+      : 'arrow at θ ' + n(th, 1) + '° · φ ' + n(ph, 1) + '° · unrotated';
   }
 
   /* ---------------- wiring ---------------- */
@@ -905,16 +985,13 @@ body{
     return { set: function (v) { push(v, null); } };
   }
 
-  var ctlX = bindPair('vx', 'vxNum', -180, 180, function (v) { view.x = v; updateViewNote(); draw(); });
-  var ctlY = bindPair('vy', 'vyNum', -180, 180, function (v) { view.y = v; updateViewNote(); draw(); });
-  var ctlZ = bindPair('vz', 'vzNum', -180, 180, function (v) { view.z = v; updateViewNote(); draw(); });
-  var ctlT = bindPair('th', 'thNum', 0, 180, function (v) { qs.th = v; updateState(); draw(); });
-  var ctlP = bindPair('ph', 'phNum', 0, 360, function (v) { qs.ph = v; updateState(); draw(); });
+  var ctlX = bindPair('vx', 'vxNum', -180, 180, function (v) { rot.x = v; updateRotation(); draw(); });
+  var ctlY = bindPair('vy', 'vyNum', -180, 180, function (v) { rot.y = v; updateRotation(); draw(); });
+  var ctlZ = bindPair('vz', 'vzNum', -180, 180, function (v) { rot.z = v; updateRotation(); draw(); });
+  var ctlT = bindPair('th', 'thNum', 0, 180, function (v) { qs.th = v; updateState(); updateRotation(); draw(); });
+  var ctlP = bindPair('ph', 'phNum', 0, 360, function (v) { qs.ph = v; updateState(); updateRotation(); draw(); });
 
   $('resetView').addEventListener('click', function () { ctlX.set(0); ctlY.set(0); ctlZ.set(0); });
-  // Puts the +z axis on the line of sight for the fixed camera (az 30, el 20):
-  // Rx(-54)*Ry(54.5) maps z-hat onto the camera direction.
-  $('topView').addEventListener('click', function () { ctlX.set(-54); ctlY.set(54.5); ctlZ.set(0); });
 
   [['tGrid','grid'], ['tGuides','guides'], ['tLabels','labels']].forEach(function (p) {
     $(p[0]).addEventListener('change', function () { opts[p[1]] = this.checked; draw(); });
@@ -929,7 +1006,7 @@ body{
   function spinStep(now) {
     if (!opts.spin) return;
     var dt = Math.min(50, now - spinLast); spinLast = now;
-    ctlZ.set(wrap180(view.z + dt * 0.024));
+    ctlZ.set(wrap180(rot.z + dt * 0.024));
     spinRAF = requestAnimationFrame(spinStep);
   }
 
@@ -941,21 +1018,26 @@ body{
     });
   });
 
-  /* drag to orbit: horizontal spins about z, vertical tilts about y */
-  var drag = null;
+  /* Drag aims the arrow at the cursor. The visual rotation is undone first,
+     so what moves is the state behind it and the arrow lands where you point. */
+  var drag = false;
+  function aim(e) {
+    var r = canvas.getBoundingClientRect();
+    var b = unrotate(unproject(e.clientX - r.left, e.clientY - r.top));
+    var pol = polarOf(b);
+    ctlT.set(Math.round(pol[0] / DEG * 2) / 2);
+    ctlP.set(Math.round(pol[1] / DEG * 2) / 2);
+  }
   canvas.addEventListener('pointerdown', function (e) {
-    drag = { x: e.clientX, y: e.clientY, z: view.z, ty: view.y };
+    drag = true;
     canvas.setPointerCapture(e.pointerId);
     canvas.classList.add('dragging');
+    aim(e);
   });
-  canvas.addEventListener('pointermove', function (e) {
-    if (!drag) return;
-    ctlZ.set(wrap180(drag.z + (e.clientX - drag.x) * 0.5));
-    ctlY.set(clamp(drag.ty - (e.clientY - drag.y) * 0.5, -180, 180));
-  });
+  canvas.addEventListener('pointermove', function (e) { if (drag) aim(e); });
   function endDrag(e) {
     if (!drag) return;
-    drag = null;
+    drag = false;
     canvas.classList.remove('dragging');
     if (e && e.pointerId !== undefined && canvas.hasPointerCapture(e.pointerId))
       canvas.releasePointerCapture(e.pointerId);
@@ -993,8 +1075,8 @@ body{
   /* boot */
   readPalette();
   syncThemeBtn();
-  updateViewNote();
   updateState();
+  updateRotation();
   resize();
   if (window.ResizeObserver) new ResizeObserver(resize).observe(canvas.parentElement);
   else window.addEventListener('resize', resize);
