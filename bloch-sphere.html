@@ -1,0 +1,1005 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bloch Sphere Bench</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:ital,wght@0,500;1,400;1,500&display=swap">
+<style>
+/* ============================================================
+   Tokens - bare :root carries the complete LIGHT palette.
+   ============================================================ */
+:root{
+  --paper:#eceef4;
+  --surface:#ffffff;
+  --surface-2:#f3f5fa;
+  --screen:#f7f8fc;
+  --rule:#d5d9e6;
+  --rule-soft:#e4e7f0;
+  --ink:#161a26;
+  --ink-2:#4a5169;
+  --ink-3:#767d94;
+  --accent:#4a4fd4;
+  --focus:#4a4fd4;
+
+  --ax-x:#cf4436;
+  --ax-y:#12805a;
+  --ax-z:#2f63cb;
+  --state:#b3720b;
+
+  /* canvas-only tokens */
+  --c-text:#161a26;
+  --c-dim:#767d94;
+  --c-wire:#8b93ab;
+  --c-outline:#9aa2ba;
+  --c-x:#cf4436;
+  --c-y:#12805a;
+  --c-z:#2f63cb;
+  --c-state:#c07c09;
+  --c-guide:#767d94;
+  --c-sph1:rgba(255,255,255,0.92);
+  --c-sph2:rgba(122,143,196,0.20);
+
+  --grid-line:rgba(22,26,38,0.045);
+
+  --font-ui:"IBM Plex Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+  --font-mono:"IBM Plex Mono","SF Mono",ui-monospace,Menlo,Consolas,monospace;
+  --font-math:"IBM Plex Serif",Georgia,"Times New Roman",serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0a0c13;
+    --surface:#12151f;
+    --surface-2:#171b28;
+    --screen:#0d1018;
+    --rule:#252a3a;
+    --rule-soft:#1d2231;
+    --ink:#e7eaf3;
+    --ink-2:#a8b0c6;
+    --ink-3:#767e97;
+    --accent:#8f93ff;
+    --focus:#8f93ff;
+
+    --ax-x:#f0685a;
+    --ax-y:#33c393;
+    --ax-z:#6f9bfa;
+    --state:#f5b53f;
+
+    --c-text:#e7eaf3;
+    --c-dim:#767e97;
+    --c-wire:#69718d;
+    --c-outline:#7c85a3;
+    --c-x:#f0685a;
+    --c-y:#33c393;
+    --c-z:#6f9bfa;
+    --c-state:#f5b53f;
+    --c-guide:#8a93af;
+    --c-sph1:rgba(160,180,235,0.13);
+    --c-sph2:rgba(60,80,150,0.08);
+
+    --grid-line:rgba(231,234,243,0.045);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0a0c13;
+  --surface:#12151f;
+  --surface-2:#171b28;
+  --screen:#0d1018;
+  --rule:#252a3a;
+  --rule-soft:#1d2231;
+  --ink:#e7eaf3;
+  --ink-2:#a8b0c6;
+  --ink-3:#767e97;
+  --accent:#8f93ff;
+  --focus:#8f93ff;
+
+  --ax-x:#f0685a;
+  --ax-y:#33c393;
+  --ax-z:#6f9bfa;
+  --state:#f5b53f;
+
+  --c-text:#e7eaf3;
+  --c-dim:#767e97;
+  --c-wire:#69718d;
+  --c-outline:#7c85a3;
+  --c-x:#f0685a;
+  --c-y:#33c393;
+  --c-z:#6f9bfa;
+  --c-state:#f5b53f;
+  --c-guide:#8a93af;
+  --c-sph1:rgba(160,180,235,0.13);
+  --c-sph2:rgba(60,80,150,0.08);
+
+  --grid-line:rgba(231,234,243,0.045);
+}
+
+/* ============================================================
+   Base
+   ============================================================ */
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--font-ui);
+  font-size:14px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:3px}
+.wrap{max-width:1180px;margin:0 auto;padding:22px 20px 56px}
+
+/* ---- masthead ---- */
+.masthead{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  gap:20px;flex-wrap:wrap;
+  padding-bottom:14px;margin-bottom:20px;
+  border-bottom:1px solid var(--rule);
+}
+.masthead h1{
+  font-family:var(--font-math);
+  font-weight:500;font-size:27px;line-height:1.15;margin:0;
+  letter-spacing:-0.015em;text-wrap:balance;
+}
+.masthead p{margin:5px 0 0;color:var(--ink-2);max-width:62ch;font-size:13.5px}
+.eyebrow{
+  font-family:var(--font-mono);font-size:10.5px;font-weight:500;
+  letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-3);
+  display:block;margin-bottom:6px;
+}
+.theme-btn{
+  font-family:var(--font-mono);font-size:11px;letter-spacing:0.08em;
+  text-transform:uppercase;color:var(--ink-2);
+  background:var(--surface);border:1px solid var(--rule);
+  padding:7px 12px;border-radius:2px;cursor:pointer;
+}
+.theme-btn:hover{color:var(--ink);border-color:var(--ink-3)}
+
+/* ---- bench layout ---- */
+.bench{display:grid;grid-template-columns:minmax(0,1fr) 322px;gap:18px;align-items:start}
+@media (max-width:920px){.bench{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:18px;min-width:0}
+
+.panel{background:var(--surface);border:1px solid var(--rule);border-radius:3px}
+.panel > header{
+  display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding:11px 14px;border-bottom:1px solid var(--rule-soft);
+}
+.panel > header h2{
+  margin:0;font-family:var(--font-mono);font-size:11px;font-weight:500;
+  letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-2);
+}
+.panel > header .note{font-size:11.5px;color:var(--ink-3);font-family:var(--font-mono)}
+.panel-body{padding:14px}
+
+/* ---- viewport ---- */
+.viewport{
+  position:relative;background:var(--screen);
+  border-bottom:1px solid var(--rule-soft);
+  background-image:linear-gradient(var(--grid-line) 1px,transparent 1px),
+                   linear-gradient(90deg,var(--grid-line) 1px,transparent 1px);
+  background-size:28px 28px;
+  display:grid;place-items:center;padding:10px;
+}
+#sphere{display:block;touch-action:none;cursor:grab}
+#sphere.dragging{cursor:grabbing}
+.viewport-tag{
+  position:absolute;left:12px;top:10px;
+  font-family:var(--font-mono);font-size:10.5px;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--ink-3);pointer-events:none;
+}
+.legend{
+  display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;
+  padding:9px 14px;font-family:var(--font-mono);font-size:11px;color:var(--ink-2);
+}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.swatch{width:14px;height:2px;border-radius:1px;display:inline-block}
+.legend .hint{margin-left:auto;color:var(--ink-3)}
+
+/* ---- controls ---- */
+.ctrl{display:grid;grid-template-columns:auto 1fr auto;gap:8px 10px;align-items:center;padding:9px 0}
+.ctrl + .ctrl{border-top:1px solid var(--rule-soft)}
+.ctrl .tag{
+  font-family:var(--font-mono);font-weight:600;font-size:12px;
+  width:22px;height:22px;display:grid;place-items:center;
+  border-radius:2px;color:#fff;
+}
+.ctrl .tag.x{background:var(--ax-x)} .ctrl .tag.y{background:var(--ax-y)} .ctrl .tag.z{background:var(--ax-z)}
+.ctrl .tag.sym{background:var(--surface-2);color:var(--ink);font-family:var(--font-math);font-style:italic;font-size:14px;border:1px solid var(--rule)}
+.ctrl .lab{grid-column:2;font-size:12.5px;color:var(--ink-2)}
+.ctrl .lab b{color:var(--ink);font-weight:500}
+.ctrl .num{
+  grid-column:3;display:inline-flex;align-items:center;gap:1px;
+  font-family:var(--font-mono);font-size:12.5px;
+}
+.ctrl input[type=number]{
+  width:52px;background:var(--surface-2);border:1px solid var(--rule);
+  color:var(--ink);font-family:var(--font-mono);font-size:12.5px;
+  padding:3px 4px;border-radius:2px;text-align:right;
+  font-variant-numeric:tabular-nums;
+}
+.ctrl input[type=range]{grid-column:1 / -1;width:100%;margin:0;accent-color:var(--accent)}
+.ctrl.axis input[type=range].x{accent-color:var(--ax-x)}
+.ctrl.axis input[type=range].y{accent-color:var(--ax-y)}
+.ctrl.axis input[type=range].z{accent-color:var(--ax-z)}
+.range-scale{
+  grid-column:1 / -1;display:flex;justify-content:space-between;
+  font-family:var(--font-mono);font-size:10px;color:var(--ink-3);margin-top:-4px;
+}
+
+.btnrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.btn{
+  font-family:var(--font-mono);font-size:11.5px;color:var(--ink-2);
+  background:var(--surface-2);border:1px solid var(--rule);
+  padding:6px 9px;border-radius:2px;cursor:pointer;
+}
+.btn:hover{color:var(--ink);border-color:var(--ink-3)}
+.btn .k{font-family:var(--font-math);font-style:normal}
+.toggles{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:12px;padding-top:11px;border-top:1px solid var(--rule-soft)}
+.toggles label{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-2);cursor:pointer}
+.toggles input{accent-color:var(--accent);margin:0}
+
+.callout{
+  margin:0;padding:9px 14px;font-size:12px;line-height:1.45;color:var(--ink-2);
+  background:var(--surface-2);border-top:1px solid var(--rule-soft);
+}
+.callout b{color:var(--ink);font-weight:500}
+
+/* ---- state readout ---- */
+.math{font-family:var(--font-math)}
+.math i,.mvar{font-family:var(--font-math);font-style:italic}
+.ket{font-family:var(--font-math);font-style:normal}
+
+.eqn{
+  font-family:var(--font-math);font-size:19px;line-height:1.7;
+  color:var(--ink);letter-spacing:0.01em;
+  overflow-x:auto;padding-bottom:2px;
+}
+.eqn .op{color:var(--ink-3);padding:0 .18em}
+.eqn sup{font-size:.62em;vertical-align:super;line-height:0}
+.eqn-num{
+  font-family:var(--font-mono);font-size:13.5px;line-height:1.85;
+  color:var(--ink);margin-top:8px;overflow-x:auto;white-space:nowrap;
+  font-variant-numeric:tabular-nums;padding-bottom:4px;
+}
+.eqn-num .amp{color:var(--state);font-weight:500}
+.eqn-num .k{font-family:var(--font-math);color:var(--ink-2)}
+.eqn-num .op{color:var(--ink-3)}
+
+.readout{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));
+  gap:0;border-top:1px solid var(--rule-soft);
+}
+.cell{padding:11px 14px;border-right:1px solid var(--rule-soft)}
+.cell:last-child{border-right:0}
+.cell .k{
+  font-family:var(--font-mono);font-size:10.5px;letter-spacing:0.06em;
+  color:var(--ink-3);display:block;margin-bottom:4px;
+}
+.cell .k .sym{font-family:var(--font-math);font-style:italic;font-size:13px;color:var(--ink-2)}
+.cell .k sub{font-size:.78em}
+.cell .v{
+  font-family:var(--font-mono);font-size:15px;font-variant-numeric:tabular-nums;
+  color:var(--ink);
+}
+.cell .v small{font-size:11px;color:var(--ink-3);margin-left:5px}
+.cell .v sup{font-size:.72em;vertical-align:super;line-height:0}
+
+.prob{display:grid;gap:9px;padding:13px 14px;border-top:1px solid var(--rule-soft)}
+.prob .row{display:grid;grid-template-columns:38px 1fr auto;gap:12px;align-items:center}
+.prob .lbl{font-family:var(--font-math);font-size:15px;color:var(--ink)}
+.prob .bar{height:8px;background:var(--surface-2);border:1px solid var(--rule-soft);border-radius:2px;overflow:hidden}
+.prob .fill{display:block;height:100%;width:0;transition:width .12s linear}
+.prob .fill.p0{background:var(--ax-z)}
+.prob .fill.p1{background:var(--ax-x)}
+.prob .pct{
+  font-family:var(--font-mono);font-size:12.5px;text-align:right;white-space:nowrap;
+  color:var(--ink);font-variant-numeric:tabular-nums;min-width:126px;
+}
+.prob .pct em{font-style:normal;color:var(--ink-3);margin-left:8px}
+@media (prefers-reduced-motion: reduce){.prob .fill{transition:none}}
+
+.pauli{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--rule-soft)}
+.pauli .cell{border-right:1px solid var(--rule-soft)}
+.pauli .cell:last-child{border-right:0}
+.pauli .cell .k{display:flex;align-items:center;gap:6px}
+.pauli .dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+
+.rho{display:flex;align-items:center;gap:12px;padding:13px 14px;border-top:1px solid var(--rule-soft);flex-wrap:wrap}
+.rho .name{font-family:var(--font-math);font-size:17px;color:var(--ink)}
+.rho .mat{
+  display:grid;grid-template-columns:auto auto;gap:4px 20px;
+  padding:6px 12px;border-left:2px solid var(--ink-3);border-right:2px solid var(--ink-3);
+  font-family:var(--font-mono);font-size:12.5px;font-variant-numeric:tabular-nums;
+  color:var(--ink);overflow-x:auto;
+}
+.rho .cap{font-size:11.5px;color:var(--ink-3);font-family:var(--font-mono);margin-left:auto}
+
+.foot{
+  margin-top:22px;padding-top:12px;border-top:1px solid var(--rule);
+  font-size:12px;color:var(--ink-3);max-width:78ch;
+}
+.foot code{font-family:var(--font-mono);font-size:11.5px;color:var(--ink-2)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div>
+      <span class="eyebrow">Single qubit &middot; pure state</span>
+      <h1>Bloch Sphere Bench</h1>
+      <p>Three independent view rotations for looking at the sphere, and a separate pair of state angles that actually define <span class="mvar">&psi;</span>. The two never touch each other.</p>
+    </div>
+    <button class="theme-btn" id="themeBtn" type="button">Dark</button>
+  </header>
+
+  <div class="bench">
+
+    <!-- ============ left column ============ -->
+    <div class="col">
+
+      <section class="panel">
+        <header>
+          <h2>Viewport</h2>
+          <span class="note" id="viewNote">orient X 0&deg; &middot; Y 0&deg; &middot; Z 0&deg;</span>
+        </header>
+        <div class="viewport">
+          <span class="viewport-tag">orthonormal frame</span>
+          <canvas id="sphere" width="520" height="520"></canvas>
+        </div>
+        <div class="legend">
+          <span><i class="swatch" style="background:var(--ax-x)"></i> x &mdash; <span class="ket">|+&rang;</span>/<span class="ket">|&minus;&rang;</span></span>
+          <span><i class="swatch" style="background:var(--ax-y)"></i> y &mdash; <span class="ket">|+i&rang;</span>/<span class="ket">|&minus;i&rang;</span></span>
+          <span><i class="swatch" style="background:var(--ax-z)"></i> z &mdash; <span class="ket">|0&rang;</span>/<span class="ket">|1&rang;</span></span>
+          <span><i class="swatch" style="background:var(--state);height:3px"></i> state vector</span>
+          <span class="hint">drag to orbit</span>
+        </div>
+      </section>
+
+      <section class="panel">
+        <header>
+          <h2>State vector</h2>
+          <span class="note">global phase omitted</span>
+        </header>
+        <div class="panel-body">
+          <div class="eqn">
+            <span class="ket">|&psi;&rang;</span><span class="op">=</span>cos&hairsp;(<i>&theta;</i>/2)&thinsp;<span class="ket">|0&rang;</span><span class="op">+</span><i>e</i><sup><i>i&phi;</i></sup>&thinsp;sin&hairsp;(<i>&theta;</i>/2)&thinsp;<span class="ket">|1&rang;</span>
+          </div>
+          <div class="eqn-num" id="eqnNum"></div>
+        </div>
+
+        <div class="readout">
+          <div class="cell"><span class="k"><span class="sym">&alpha;</span> &nbsp;amplitude of |0&rang;</span><span class="v" id="valAlpha"></span></div>
+          <div class="cell"><span class="k"><span class="sym">&beta;</span> &nbsp;amplitude of |1&rang;</span><span class="v" id="valBeta"></span></div>
+          <div class="cell"><span class="k"><span class="sym">&beta;</span> &nbsp;in polar form</span><span class="v" id="valBetaPolar"></span></div>
+        </div>
+
+        <div class="prob">
+          <div class="row">
+            <span class="lbl"><span class="ket">|0&rang;</span></span>
+            <span class="bar"><i class="fill p0" id="bar0"></i></span>
+            <span class="pct" id="pct0"></span>
+          </div>
+          <div class="row">
+            <span class="lbl"><span class="ket">|1&rang;</span></span>
+            <span class="bar"><i class="fill p1" id="bar1"></i></span>
+            <span class="pct" id="pct1"></span>
+          </div>
+        </div>
+
+        <div class="pauli">
+          <div class="cell"><span class="k"><i class="dot" style="background:var(--ax-x)"></i><span class="sym">&lang;&sigma;<sub>x</sub>&rang;</span> = r<sub>x</sub></span><span class="v" id="valRx"></span></div>
+          <div class="cell"><span class="k"><i class="dot" style="background:var(--ax-y)"></i><span class="sym">&lang;&sigma;<sub>y</sub>&rang;</span> = r<sub>y</sub></span><span class="v" id="valRy"></span></div>
+          <div class="cell"><span class="k"><i class="dot" style="background:var(--ax-z)"></i><span class="sym">&lang;&sigma;<sub>z</sub>&rang;</span> = r<sub>z</sub></span><span class="v" id="valRz"></span></div>
+        </div>
+
+        <div class="rho">
+          <span class="name">&rho; =</span>
+          <div class="mat">
+            <span id="rho00"></span><span id="rho01"></span>
+            <span id="rho10"></span><span id="rho11"></span>
+          </div>
+          <span class="cap">tr &rho;&sup2; = 1 &middot; pure</span>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============ right column ============ -->
+    <div class="col">
+
+      <section class="panel">
+        <header>
+          <h2>View orientation</h2>
+          <span class="note">visual only</span>
+        </header>
+        <div class="panel-body">
+
+          <div class="ctrl axis">
+            <span class="tag x">X</span>
+            <span class="lab">Rotate about <b>x</b> &mdash; the <span class="ket">|+&rang;</span>&ndash;<span class="ket">|&minus;&rang;</span> axis</span>
+            <span class="num"><input type="number" id="vxNum" min="-180" max="180" step="1" value="0" aria-label="Rotation about x in degrees">&deg;</span>
+            <input type="range" class="x" id="vx" min="-180" max="180" step="1" value="0" aria-label="Rotate view about x">
+            <div class="range-scale"><span>&minus;180&deg;</span><span>0&deg;</span><span>+180&deg;</span></div>
+          </div>
+
+          <div class="ctrl axis">
+            <span class="tag y">Y</span>
+            <span class="lab">Rotate about <b>y</b> &mdash; the <span class="ket">|+i&rang;</span>&ndash;<span class="ket">|&minus;i&rang;</span> axis</span>
+            <span class="num"><input type="number" id="vyNum" min="-180" max="180" step="1" value="0" aria-label="Rotation about y in degrees">&deg;</span>
+            <input type="range" class="y" id="vy" min="-180" max="180" step="1" value="0" aria-label="Rotate view about y">
+            <div class="range-scale"><span>&minus;180&deg;</span><span>0&deg;</span><span>+180&deg;</span></div>
+          </div>
+
+          <div class="ctrl axis">
+            <span class="tag z">Z</span>
+            <span class="lab">Rotate about <b>z</b> &mdash; the <span class="ket">|0&rang;</span>&ndash;<span class="ket">|1&rang;</span> axis</span>
+            <span class="num"><input type="number" id="vzNum" min="-180" max="180" step="1" value="0" aria-label="Rotation about z in degrees">&deg;</span>
+            <input type="range" class="z" id="vz" min="-180" max="180" step="1" value="0" aria-label="Rotate view about z">
+            <div class="range-scale"><span>&minus;180&deg;</span><span>0&deg;</span><span>+180&deg;</span></div>
+          </div>
+
+          <div class="btnrow">
+            <button class="btn" type="button" id="resetView">Reset to 0&deg;, 0&deg;, 0&deg;</button>
+            <button class="btn" type="button" id="topView">Pole&#8209;on, down <b>z</b></button>
+          </div>
+
+          <div class="toggles">
+            <label><input type="checkbox" id="tGrid" checked> Lat/long mesh</label>
+            <label><input type="checkbox" id="tGuides" checked> &theta;/&phi; guides</label>
+            <label><input type="checkbox" id="tLabels" checked> Labels</label>
+            <label><input type="checkbox" id="tSpin"> Auto-spin z</label>
+          </div>
+        </div>
+        <p class="callout">Applied in the order <b>R<sub>x</sub>&middot;R<sub>y</sub>&middot;R<sub>z</sub></b> to the sphere itself. This only turns the camera on the picture &mdash; <b>&psi;</b>, its angles and every number below are untouched.</p>
+      </section>
+
+      <section class="panel">
+        <header>
+          <h2>Qubit state</h2>
+          <span class="note">defines |&psi;&rang;</span>
+        </header>
+        <div class="panel-body">
+
+          <div class="ctrl">
+            <span class="tag sym">&theta;</span>
+            <span class="lab">Polar angle from <b>+z</b> &mdash; sets the <span class="ket">|0&rang;</span>/<span class="ket">|1&rang;</span> mix</span>
+            <span class="num"><input type="number" id="thNum" min="0" max="180" step="0.5" value="60" aria-label="Theta in degrees">&deg;</span>
+            <input type="range" id="th" min="0" max="180" step="0.5" value="60" aria-label="Theta">
+            <div class="range-scale"><span>0&deg;</span><span>90&deg;</span><span>180&deg;</span></div>
+          </div>
+
+          <div class="ctrl">
+            <span class="tag sym">&phi;</span>
+            <span class="lab">Azimuth from <b>+x</b> &mdash; the relative phase</span>
+            <span class="num"><input type="number" id="phNum" min="0" max="360" step="0.5" value="120" aria-label="Phi in degrees">&deg;</span>
+            <input type="range" id="ph" min="0" max="360" step="0.5" value="120" aria-label="Phi">
+            <div class="range-scale"><span>0&deg;</span><span>180&deg;</span><span>360&deg;</span></div>
+          </div>
+
+          <div class="btnrow">
+            <button class="btn" type="button" data-th="0" data-ph="0"><span class="k">|0&rang;</span></button>
+            <button class="btn" type="button" data-th="180" data-ph="0"><span class="k">|1&rang;</span></button>
+            <button class="btn" type="button" data-th="90" data-ph="0"><span class="k">|+&rang;</span></button>
+            <button class="btn" type="button" data-th="90" data-ph="180"><span class="k">|&minus;&rang;</span></button>
+            <button class="btn" type="button" data-th="90" data-ph="90"><span class="k">|+i&rang;</span></button>
+            <button class="btn" type="button" data-th="90" data-ph="270"><span class="k">|&minus;i&rang;</span></button>
+          </div>
+        </div>
+        <p class="callout" id="stateNote"></p>
+      </section>
+    </div>
+  </div>
+
+  <p class="foot">Legal ranges are enforced: the state angles live on <code>&theta; &isin; [0&deg;, 180&deg;]</code> and <code>&phi; &isin; [0&deg;, 360&deg;)</code>, which covers the sphere exactly once. The three view angles wrap freely on <code>[&minus;180&deg;, 180&deg;]</code> because rotating the picture is not a physical operation on the qubit.</p>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var DEG = Math.PI / 180;
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ---------------- linear algebra ---------------- */
+  function mul(A, B) {
+    var C = [[0,0,0],[0,0,0],[0,0,0]];
+    for (var i = 0; i < 3; i++)
+      for (var j = 0; j < 3; j++)
+        C[i][j] = A[i][0]*B[0][j] + A[i][1]*B[1][j] + A[i][2]*B[2][j];
+    return C;
+  }
+  function app(M, v) {
+    return [M[0][0]*v[0] + M[0][1]*v[1] + M[0][2]*v[2],
+            M[1][0]*v[0] + M[1][1]*v[1] + M[1][2]*v[2],
+            M[2][0]*v[0] + M[2][1]*v[1] + M[2][2]*v[2]];
+  }
+  function Rx(a){ var c=Math.cos(a), s=Math.sin(a); return [[1,0,0],[0,c,-s],[0,s,c]]; }
+  function Ry(a){ var c=Math.cos(a), s=Math.sin(a); return [[c,0,s],[0,1,0],[-s,0,c]]; }
+  function Rz(a){ var c=Math.cos(a), s=Math.sin(a); return [[c,-s,0],[s,c,0],[0,0,1]]; }
+  function dot(a,b){ return a[0]*b[0] + a[1]*b[1] + a[2]*b[2]; }
+  function cross(a,b){ return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]]; }
+  function unit(a){ var n = Math.hypot(a[0],a[1],a[2]) || 1; return [a[0]/n, a[1]/n, a[2]/n]; }
+
+  /* ---------------- fixed camera ----------------
+     A three-quarter view: azimuth 30 deg, elevation 20 deg. No world axis
+     lies along the line of sight, so all three view sliders start at zero
+     and each one visibly does something different.                        */
+  var CAM_AZ = 30 * DEG, CAM_EL = 20 * DEG;
+  var CW = [Math.cos(CAM_EL)*Math.cos(CAM_AZ), Math.cos(CAM_EL)*Math.sin(CAM_AZ), Math.sin(CAM_EL)];
+  var CR = unit(cross([0,0,1], CW));   // screen right
+  var CU = cross(CW, CR);              // screen up
+  var FOCAL = 5;                       // weak perspective, in sphere radii
+
+  /* ---------------- state ---------------- */
+  var view = { x: 0, y: 0, z: 0 };     // degrees, visual only
+  var qs   = { th: 60, ph: 120 };      // degrees, the actual qubit
+  var opts = { grid: true, guides: true, labels: true, spin: false };
+  var M = [[1,0,0],[0,1,0],[0,0,1]];
+
+  function buildM() {
+    M = mul(Rx(view.x*DEG), mul(Ry(view.y*DEG), Rz(view.z*DEG)));
+  }
+
+  /* ---------------- canvas ---------------- */
+  var canvas = $('sphere'), ctx = canvas.getContext('2d');
+  var W = 520, H = 520, cx = 260, cy = 260, RAD = 175;
+  var PAL = {};
+
+  function readPalette() {
+    var cs = getComputedStyle(document.documentElement);
+    var g = function (n) { return cs.getPropertyValue(n).trim(); };
+    PAL = {
+      text: g('--c-text'), dim: g('--c-dim'), wire: g('--c-wire'),
+      outline: g('--c-outline'), guide: g('--c-guide'),
+      x: g('--c-x'), y: g('--c-y'), z: g('--c-z'), state: g('--c-state'),
+      sph1: g('--c-sph1'), sph2: g('--c-sph2')
+    };
+  }
+
+  function resize() {
+    var host = canvas.parentElement;
+    var avail = host.clientWidth - 20;
+    var size = Math.max(260, Math.min(avail, 560));
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(size * dpr);
+    canvas.height = Math.round(size * dpr);
+    canvas.style.width = size + 'px';
+    canvas.style.height = size + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    W = H = size; cx = cy = size / 2; RAD = size * 0.335;
+    draw();
+  }
+
+  function project(p) {
+    var q = app(M, p);
+    var vx = dot(q, CR), vy = dot(q, CU), vz = dot(q, CW);
+    var s = FOCAL / (FOCAL - vz);
+    return [cx + vx*RAD*s, cy - vy*RAD*s, vz];
+  }
+
+  /* Stroke only the segments of a polyline that sit in the requested depth
+     layer, so the sphere body can be painted between back and front. */
+  function stroke3(pts, layer, color, width, dash, alpha) {
+    var P = new Array(pts.length), i;
+    for (i = 0; i < pts.length; i++) P[i] = project(pts[i]);
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.setLineDash(dash || []);
+    ctx.beginPath();
+    var pen = false;
+    for (i = 0; i < P.length - 1; i++) {
+      var a = P[i], b = P[i+1];
+      var mid = (a[2] + b[2]) / 2;
+      var inLayer = (layer === 'front') ? (mid >= 0) : (mid < 0);
+      if (inLayer) {
+        if (!pen) { ctx.moveTo(a[0], a[1]); pen = true; }
+        ctx.lineTo(b[0], b[1]);
+      } else pen = false;
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  /* ---------------- geometry generators ---------------- */
+  function circle(ax1, ax2, steps) {
+    var pts = [], n = steps || 96;
+    for (var i = 0; i <= n; i++) {
+      var t = i / n * Math.PI * 2, c = Math.cos(t), s = Math.sin(t);
+      pts.push([ax1[0]*c + ax2[0]*s, ax1[1]*c + ax2[1]*s, ax1[2]*c + ax2[2]*s]);
+    }
+    return pts;
+  }
+  function latitude(lat) {
+    var r = Math.cos(lat), z = Math.sin(lat), pts = [];
+    for (var i = 0; i <= 72; i++) {
+      var t = i / 72 * Math.PI * 2;
+      pts.push([r*Math.cos(t), r*Math.sin(t), z]);
+    }
+    return pts;
+  }
+  function longitude(lon) {
+    var pts = [];
+    for (var i = 0; i <= 72; i++) {
+      var t = -Math.PI/2 + i / 72 * Math.PI;
+      pts.push([Math.cos(t)*Math.cos(lon), Math.cos(t)*Math.sin(lon), Math.sin(t)]);
+    }
+    return pts;
+  }
+  function segment(a, b, n) {
+    var pts = [], k = n || 24;
+    for (var i = 0; i <= k; i++) {
+      var t = i / k;
+      pts.push([a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t, a[2]+(b[2]-a[2])*t]);
+    }
+    return pts;
+  }
+  function arc(from, axisPerp, ang, r) {
+    var pts = [], n = Math.max(6, Math.round(Math.abs(ang) / (Math.PI/60)));
+    for (var i = 0; i <= n; i++) {
+      var t = ang * i / n, c = Math.cos(t), s = Math.sin(t);
+      pts.push([(from[0]*c + axisPerp[0]*s)*r,
+                (from[1]*c + axisPerp[1]*s)*r,
+                (from[2]*c + axisPerp[2]*s)*r]);
+    }
+    return pts;
+  }
+
+  var EX = [1,0,0], EY = [0,1,0], EZ = [0,0,1];
+
+  function blochVector() {
+    var t = qs.th * DEG, f = qs.ph * DEG;
+    return [Math.sin(t)*Math.cos(f), Math.sin(t)*Math.sin(f), Math.cos(t)];
+  }
+
+  /* ---------------- drawing ---------------- */
+  function drawLayer(layer) {
+    var back = (layer === 'back');
+    var wireA  = back ? 0.20 : 0.55;
+    var meshA  = back ? 0.12 : 0.30;
+    var axisA  = back ? 0.30 : 1.00;
+    var guideA = back ? 0.22 : 0.70;
+    var vecA   = back ? 0.32 : 1.00;
+    var dash   = back ? [3, 4] : [];
+
+    if (opts.grid) {
+      var lats = [-60, -30, 30, 60], i;
+      for (i = 0; i < lats.length; i++)
+        stroke3(latitude(lats[i]*DEG), layer, PAL.wire, 1, dash, meshA);
+      for (i = 0; i < 6; i++)
+        stroke3(longitude(i*30*DEG), layer, PAL.wire, 1, dash, meshA);
+    }
+
+    // three principal great circles, tinted by the axis they enclose
+    stroke3(circle(EX, EY), layer, PAL.z, 1.4, dash, wireA);   // equator, normal z
+    stroke3(circle(EY, EZ), layer, PAL.x, 1.2, dash, wireA * 0.8);
+    stroke3(circle(EZ, EX), layer, PAL.y, 1.2, dash, wireA * 0.8);
+
+    // axes
+    var L = 1.16;
+    stroke3(segment([-L,0,0], [L,0,0]), layer, PAL.x, 1.6, dash, axisA);
+    stroke3(segment([0,-L,0], [0,L,0]), layer, PAL.y, 1.6, dash, axisA);
+    stroke3(segment([0,0,-L], [0,0,L]), layer, PAL.z, 1.6, dash, axisA);
+
+    var b = blochVector();
+    var t = qs.th * DEG, f = qs.ph * DEG;
+
+    if (opts.guides) {
+      var radial = [Math.cos(f), Math.sin(f), 0];
+      // theta, swept from +z toward the state
+      stroke3(arc(EZ, radial, t, 0.42), layer, PAL.guide, 1.3, back ? [3,4] : [], guideA);
+      // phi, swept in the equatorial plane from +x
+      stroke3(arc(EX, EY, f, 0.30), layer, PAL.guide, 1.3, back ? [3,4] : [], guideA);
+      // drop lines
+      var foot = [b[0], b[1], 0];
+      stroke3(segment(foot, b, 12), layer, PAL.guide, 1, [2,4], guideA);
+      stroke3(segment([0,0,0], foot, 12), layer, PAL.guide, 1, [2,4], guideA);
+    }
+
+    stroke3(segment([0,0,0], b, 28), layer, PAL.state, 2.6, [], vecA);
+  }
+
+  function drawBody() {
+    var g = ctx.createRadialGradient(cx - RAD*0.4, cy - RAD*0.45, RAD*0.06, cx, cy, RAD*1.06);
+    g.addColorStop(0, PAL.sph1);
+    g.addColorStop(1, PAL.sph2);
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, RAD, 0, Math.PI*2);
+    ctx.fillStyle = g;
+    ctx.fill();
+    ctx.globalAlpha = 0.55;
+    ctx.strokeStyle = PAL.outline;
+    ctx.lineWidth = 1.25;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawTip() {
+    var b = blochVector();
+    var P = project(b);
+    var Q = project([b[0]*0.82, b[1]*0.82, b[2]*0.82]);
+    var ang = Math.atan2(P[1] - Q[1], P[0] - Q[0]);
+    var head = Math.max(9, RAD * 0.055);
+
+    ctx.save();
+    ctx.globalAlpha = P[2] >= 0 ? 1 : 0.45;
+    ctx.fillStyle = PAL.state;
+    ctx.beginPath();
+    ctx.moveTo(P[0], P[1]);
+    ctx.lineTo(P[0] - head*Math.cos(ang - 0.38), P[1] - head*Math.sin(ang - 0.38));
+    ctx.lineTo(P[0] - head*Math.cos(ang + 0.38), P[1] - head*Math.sin(ang + 0.38));
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(P[0], P[1], Math.max(3.2, RAD*0.019), 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+
+    // origin pip
+    var O = project([0,0,0]);
+    ctx.save();
+    ctx.fillStyle = PAL.dim;
+    ctx.beginPath();
+    ctx.arc(O[0], O[1], 2, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function label(pos, ket, axisLetter, axisColor) {
+    var P = project(pos);
+    var near = P[2] >= 0;
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.globalAlpha = near ? 1 : 0.42;
+    if (axisLetter) {
+      ctx.font = '500 11px ' + FONT_MONO;
+      ctx.fillStyle = axisColor;
+      ctx.fillText(axisLetter, P[0], P[1] - 12);
+    }
+    ctx.font = '500 14px ' + FONT_MATH;
+    ctx.fillStyle = PAL.text;
+    ctx.fillText(ket, P[0], P[1] + (axisLetter ? 3 : 0));
+    ctx.restore();
+  }
+
+  var FONT_MONO = '"IBM Plex Mono", ui-monospace, Menlo, monospace';
+  var FONT_MATH = '"IBM Plex Serif", Georgia, serif';
+
+  function drawLabels() {
+    var d = 1.30;
+    label([d,0,0],  '|+⟩',  'x', PAL.x);
+    label([-d,0,0], '|−⟩', null, null);
+    label([0,d,0],  '|+i⟩', 'y', PAL.y);
+    label([0,-d,0], '|−i⟩', null, null);
+    label([0,0,d],  '|0⟩',  'z', PAL.z);
+    label([0,0,-d], '|1⟩',  null, null);
+
+    if (!opts.guides) return;
+    var t = qs.th * DEG, f = qs.ph * DEG;
+    var radial = [Math.cos(f), Math.sin(f), 0];
+    var hT = 0.53, mt = t/2;
+    var pT = project([(EZ[0]*Math.cos(mt) + radial[0]*Math.sin(mt))*hT,
+                      (EZ[1]*Math.cos(mt) + radial[1]*Math.sin(mt))*hT,
+                      (EZ[2]*Math.cos(mt) + radial[2]*Math.sin(mt))*hT]);
+    var hP = 0.40, mf = f/2;
+    var pP = project([Math.cos(mf)*hP, Math.sin(mf)*hP, 0]);
+    ctx.save();
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = 'italic 500 15px ' + FONT_MATH;
+    ctx.fillStyle = PAL.guide;
+    ctx.globalAlpha = pT[2] >= 0 ? 0.95 : 0.4;
+    if (qs.th > 4) ctx.fillText('θ', pT[0], pT[1]);
+    ctx.globalAlpha = pP[2] >= 0 ? 0.95 : 0.4;
+    if (qs.ph > 4) ctx.fillText('φ', pP[0], pP[1]);
+    ctx.restore();
+  }
+
+  function draw() {
+    buildM();
+    ctx.clearRect(0, 0, W, H);
+    drawLayer('back');
+    drawBody();
+    drawLayer('front');
+    drawTip();
+    if (opts.labels) drawLabels();
+  }
+
+  /* ---------------- number formatting ---------------- */
+  function n(v, d) {
+    if (Math.abs(v) < 5e-5) v = 0;
+    var s = v.toFixed(d === undefined ? 4 : d);
+    return s.replace('-', '−');
+  }
+  function complex(re, im) {
+    var zr = Math.abs(re) < 5e-5, zi = Math.abs(im) < 5e-5;
+    if (zi) return n(re);
+    if (zr) return n(im) + 'i';
+    return n(re) + (im < 0 ? ' − ' : ' + ') + n(Math.abs(im)) + 'i';
+  }
+  function piFrac(deg) {
+    var r = deg / 180;
+    if (Math.abs(r) < 1e-9) return '0';
+    return n(r, 4) + 'π';
+  }
+
+  /* ---------------- readouts ---------------- */
+  function updateState() {
+    var t = qs.th * DEG, f = qs.ph * DEG;
+    var a  = Math.cos(t/2);
+    var sb = Math.sin(t/2);
+    var br = sb * Math.cos(f), bi = sb * Math.sin(f);
+    var p0 = a*a, p1 = sb*sb;
+    var b = blochVector();
+
+    $('eqnNum').innerHTML =
+      '<span class="k">|ψ⟩</span> <span class="op">=</span> ' +
+      '<span class="amp">' + n(a) + '</span> <span class="k">|0⟩</span> ' +
+      '<span class="op">+</span> <span class="amp">(' + complex(br, bi) + ')</span> <span class="k">|1⟩</span>';
+
+    $('valAlpha').textContent = n(a);
+    $('valBeta').textContent = complex(br, bi);
+    $('valBetaPolar').innerHTML = n(sb) + ' <small>&middot; e<sup>i&thinsp;' + n(qs.ph, 1) + '&deg;</sup></small>';
+
+    $('bar0').style.width = (p0 * 100).toFixed(2) + '%';
+    $('bar1').style.width = (p1 * 100).toFixed(2) + '%';
+    $('pct0').innerHTML = n(p0, 4) + '<em>' + (p0*100).toFixed(1) + '%</em>';
+    $('pct1').innerHTML = n(p1, 4) + '<em>' + (p1*100).toFixed(1) + '%</em>';
+
+    $('valRx').textContent = n(b[0]);
+    $('valRy').textContent = n(b[1]);
+    $('valRz').textContent = n(b[2]);
+
+    $('rho00').textContent = n(p0);
+    $('rho01').textContent = complex(a*sb*Math.cos(f), -a*sb*Math.sin(f));
+    $('rho10').textContent = complex(a*sb*Math.cos(f),  a*sb*Math.sin(f));
+    $('rho11').textContent = n(p1);
+
+    var note = '<b>θ = ' + n(qs.th, 1) + '°</b> (' + piFrac(qs.th) +
+               ' rad) &middot; <b>φ = ' + n(qs.ph, 1) + '°</b> (' + piFrac(qs.ph) + ' rad). ';
+    if (qs.th < 0.5 || qs.th > 179.5) {
+      note += 'At a pole the state is <b>' + (qs.th < 90 ? '|0⟩' : '|1⟩') +
+              '</b> and φ has no observable effect — it is pure global phase.';
+    } else {
+      note += 'Bloch vector <b>r</b> = (' + n(b[0],3) + ', ' + n(b[1],3) + ', ' + n(b[2],3) +
+              '), length 1.';
+    }
+    $('stateNote').innerHTML = note;
+  }
+
+  function updateViewNote() {
+    $('viewNote').textContent = 'orient X ' + n(view.x, 0) + '° · Y ' +
+      n(view.y, 0) + '° · Z ' + n(view.z, 0) + '°';
+  }
+
+  /* ---------------- wiring ---------------- */
+  function clamp(v, lo, hi) { return v < lo ? lo : (v > hi ? hi : v); }
+  function wrap180(a) { a = ((a + 180) % 360 + 360) % 360 - 180; return a; }
+
+  function bindPair(rangeId, numId, lo, hi, set) {
+    var r = $(rangeId), q = $(numId);
+    function push(v, from) {
+      v = clamp(v, lo, hi);
+      if (from !== 'r') r.value = v;
+      if (from !== 'n') q.value = v;
+      set(v);
+    }
+    r.addEventListener('input', function () { push(parseFloat(r.value), 'r'); });
+    q.addEventListener('input', function () {
+      var v = parseFloat(q.value);
+      if (isNaN(v)) return;
+      push(v, 'n');
+    });
+    q.addEventListener('blur', function () {
+      var v = parseFloat(q.value);
+      push(isNaN(v) ? parseFloat(r.value) : v, null);
+    });
+    return { set: function (v) { push(v, null); } };
+  }
+
+  var ctlX = bindPair('vx', 'vxNum', -180, 180, function (v) { view.x = v; updateViewNote(); draw(); });
+  var ctlY = bindPair('vy', 'vyNum', -180, 180, function (v) { view.y = v; updateViewNote(); draw(); });
+  var ctlZ = bindPair('vz', 'vzNum', -180, 180, function (v) { view.z = v; updateViewNote(); draw(); });
+  var ctlT = bindPair('th', 'thNum', 0, 180, function (v) { qs.th = v; updateState(); draw(); });
+  var ctlP = bindPair('ph', 'phNum', 0, 360, function (v) { qs.ph = v; updateState(); draw(); });
+
+  $('resetView').addEventListener('click', function () { ctlX.set(0); ctlY.set(0); ctlZ.set(0); });
+  // Puts the +z axis on the line of sight for the fixed camera (az 30, el 20):
+  // Rx(-54)*Ry(54.5) maps z-hat onto the camera direction.
+  $('topView').addEventListener('click', function () { ctlX.set(-54); ctlY.set(54.5); ctlZ.set(0); });
+
+  [['tGrid','grid'], ['tGuides','guides'], ['tLabels','labels']].forEach(function (p) {
+    $(p[0]).addEventListener('change', function () { opts[p[1]] = this.checked; draw(); });
+  });
+
+  var spinRAF = 0, spinLast = 0;
+  $('tSpin').addEventListener('change', function () {
+    opts.spin = this.checked;
+    if (opts.spin) { spinLast = performance.now(); spinRAF = requestAnimationFrame(spinStep); }
+    else if (spinRAF) { cancelAnimationFrame(spinRAF); spinRAF = 0; }
+  });
+  function spinStep(now) {
+    if (!opts.spin) return;
+    var dt = Math.min(50, now - spinLast); spinLast = now;
+    ctlZ.set(wrap180(view.z + dt * 0.024));
+    spinRAF = requestAnimationFrame(spinStep);
+  }
+
+  var presets = document.querySelectorAll('.btn[data-th]');
+  Array.prototype.forEach.call(presets, function (b) {
+    b.addEventListener('click', function () {
+      ctlT.set(parseFloat(b.getAttribute('data-th')));
+      ctlP.set(parseFloat(b.getAttribute('data-ph')));
+    });
+  });
+
+  /* drag to orbit: horizontal spins about z, vertical tilts about y */
+  var drag = null;
+  canvas.addEventListener('pointerdown', function (e) {
+    drag = { x: e.clientX, y: e.clientY, z: view.z, ty: view.y };
+    canvas.setPointerCapture(e.pointerId);
+    canvas.classList.add('dragging');
+  });
+  canvas.addEventListener('pointermove', function (e) {
+    if (!drag) return;
+    ctlZ.set(wrap180(drag.z + (e.clientX - drag.x) * 0.5));
+    ctlY.set(clamp(drag.ty - (e.clientY - drag.y) * 0.5, -180, 180));
+  });
+  function endDrag(e) {
+    if (!drag) return;
+    drag = null;
+    canvas.classList.remove('dragging');
+    if (e && e.pointerId !== undefined && canvas.hasPointerCapture(e.pointerId))
+      canvas.releasePointerCapture(e.pointerId);
+  }
+  canvas.addEventListener('pointerup', endDrag);
+  canvas.addEventListener('pointercancel', endDrag);
+
+  /* theme */
+  var themeBtn = $('themeBtn');
+  function stored(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function store(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  function systemDark() {
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  function isDark() {
+    var t = document.documentElement.getAttribute('data-theme');
+    return t ? t === 'dark' : systemDark();
+  }
+  function syncThemeBtn() { themeBtn.textContent = isDark() ? 'Light' : 'Dark'; }
+  var saved = stored('bloch-theme');
+  if (saved === 'dark' || saved === 'light') document.documentElement.setAttribute('data-theme', saved);
+  themeBtn.addEventListener('click', function () {
+    var next = isDark() ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    store('bloch-theme', next);
+    syncThemeBtn(); readPalette(); draw();
+  });
+  if (window.matchMedia) {
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    var onScheme = function () { syncThemeBtn(); readPalette(); draw(); };
+    if (mq.addEventListener) mq.addEventListener('change', onScheme);
+    else if (mq.addListener) mq.addListener(onScheme);
+  }
+
+  /* boot */
+  readPalette();
+  syncThemeBtn();
+  updateViewNote();
+  updateState();
+  resize();
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(canvas.parentElement);
+  else window.addEventListener('resize', resize);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+})();
+</script>
+</body>
+</html>
