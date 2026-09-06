@@ -40,6 +40,8 @@
   --c-state:#c07c09;
   --c-guide:#767d94;
   --c-base:#98a0b8;
+  --c-gate:#b0348c;
+  --gate:#a5228a;
   --c-sph1:rgba(255,255,255,0.92);
   --c-sph2:rgba(122,143,196,0.20);
 
@@ -78,6 +80,8 @@
     --c-state:#f5b53f;
     --c-guide:#8a93af;
     --c-base:#8e97b3;
+    --c-gate:#ff86cd;
+    --gate:#ff86cd;
     --c-sph1:rgba(160,180,235,0.13);
     --c-sph2:rgba(60,80,150,0.08);
 
@@ -112,6 +116,8 @@
   --c-state:#f5b53f;
   --c-guide:#8a93af;
   --c-base:#8e97b3;
+  --c-gate:#ff86cd;
+  --gate:#ff86cd;
   --c-sph1:rgba(160,180,235,0.13);
   --c-sph2:rgba(60,80,150,0.08);
 
@@ -245,6 +251,99 @@ body{
 .toggles label{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-2);cursor:pointer}
 .toggles input{accent-color:var(--accent);margin:0}
 
+/* ---- gate keyboard ---- */
+.gates-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.gate{
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:8px 4px;background:var(--surface-2);border:1px solid var(--rule);
+  border-radius:2px;cursor:pointer;color:var(--ink);
+}
+.gate b{font-family:var(--font-math);font-style:italic;font-weight:500;font-size:16px;line-height:1.1}
+.gate small{font-family:var(--font-mono);font-size:9.5px;color:var(--ink-3)}
+.gate:hover{border-color:var(--gate);color:var(--gate)}
+.gate:hover small{color:var(--gate)}
+.gate.param b{font-size:14px}
+
+.gate-rot{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}
+.alpha{
+  display:grid;grid-template-columns:auto 1fr auto;gap:8px 10px;
+  align-items:center;margin-top:11px;padding-top:11px;border-top:1px solid var(--rule-soft);
+}
+.alpha .tag{
+  font-family:var(--font-math);font-style:italic;font-size:14px;
+  width:22px;height:22px;display:grid;place-items:center;border-radius:2px;
+  background:var(--surface-2);border:1px solid var(--rule);color:var(--ink);
+}
+.alpha .lab{font-size:12.5px;color:var(--ink-2)}
+.alpha .num{font-family:var(--font-mono);font-size:12.5px;display:inline-flex;align-items:center}
+.alpha input[type=number]{
+  width:52px;background:var(--surface-2);border:1px solid var(--rule);color:var(--ink);
+  font-family:var(--font-mono);font-size:12.5px;padding:3px 4px;border-radius:2px;
+  text-align:right;font-variant-numeric:tabular-nums;
+}
+.alpha input[type=range]{grid-column:1 / -1;width:100%;margin:0;accent-color:var(--gate)}
+
+.hist{
+  display:flex;flex-wrap:wrap;gap:5px;align-items:center;
+  margin-top:12px;padding-top:11px;border-top:1px solid var(--rule-soft);
+}
+.hist .hl{font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-3);margin-right:3px}
+.chip{
+  font-family:var(--font-math);font-style:italic;font-size:12.5px;
+  padding:2px 8px;border:1px solid var(--rule);border-radius:2px;
+  background:var(--surface-2);color:var(--ink-2);
+}
+.chip.last{border-color:var(--gate);color:var(--gate)}
+.hist .empty{font-family:var(--font-mono);font-size:11.5px;color:var(--ink-3)}
+.hist .sp{margin-left:auto;display:flex;gap:6px}
+
+/* ---- what the last gate did ---- */
+.gd{display:grid;grid-template-columns:minmax(0,0.95fr) minmax(0,1fr)}
+.gd > div{padding:13px 14px;min-width:0}
+.gd > div + div{border-left:1px solid var(--rule-soft)}
+@media (max-width:660px){
+  .gd{grid-template-columns:minmax(0,1fr)}
+  .gd > div + div{border-left:0;border-top:1px solid var(--rule-soft)}
+}
+.gd .hd{
+  font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;
+  text-transform:uppercase;color:var(--ink-3);margin-bottom:9px;
+}
+.gd .spin{font-size:12.5px;color:var(--ink-2);margin:0 0 10px;line-height:1.5}
+.gd .spin b{color:var(--gate);font-weight:500}
+.mat{
+  display:inline-grid;grid-template-columns:auto auto;gap:4px 20px;
+  padding:6px 12px;border-left:2px solid var(--ink-3);border-right:2px solid var(--ink-3);
+  font-family:var(--font-mono);font-size:12.5px;font-variant-numeric:tabular-nums;color:var(--ink);
+}
+.mat span{text-align:right}
+.matline{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.matline .name{font-family:var(--font-math);font-size:16px;font-style:italic;color:var(--ink)}
+.gd .decomp{
+  font-family:var(--font-mono);font-size:11.5px;color:var(--ink-3);
+  margin:10px 0 0;line-height:1.55;
+}
+.gd .applied{font-family:var(--font-mono);font-size:12px;color:var(--ink-2);margin:10px 0 0;overflow-x:auto;white-space:nowrap;padding-bottom:3px}
+.gd .applied .amp{color:var(--gate)}
+.gd .applied .k{font-family:var(--font-math);color:var(--ink-3)}
+.gd .flag{
+  font-size:12px;line-height:1.45;color:var(--ink-2);margin:10px 0 0;
+  padding:8px 10px;background:var(--surface-2);border-left:2px solid var(--gate);
+}
+.ba{width:100%;border-collapse:collapse;font-family:var(--font-mono);font-size:12px;font-variant-numeric:tabular-nums}
+.ba th{
+  font-weight:500;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--ink-3);padding:0 0 7px;text-align:right;
+}
+.ba th:first-child{text-align:left}
+.ba td{padding:4px 0;border-top:1px solid var(--rule-soft);text-align:right;padding-left:12px;color:var(--ink)}
+.ba td:first-child{
+  text-align:left;padding-left:0;color:var(--ink-2);
+  font-family:var(--font-math);font-style:italic;font-size:13.5px;
+}
+.ba td.chg{color:var(--gate)}
+.gd-empty{padding:16px 14px;font-size:12.5px;color:var(--ink-3)}
+
 .derived{border-top:1px solid var(--rule-soft);padding:11px 14px}
 .derived .hd{
   font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;
@@ -377,7 +476,86 @@ body{
           <span><i class="swatch" style="background:var(--ax-z)"></i> z &mdash; <span class="ket">|0&rang;</span>/<span class="ket">|1&rang;</span></span>
           <span><i class="swatch" style="background:var(--state);height:3px"></i> arrow</span>
           <span id="legBase" hidden><i class="swatch swatch-dash"></i> unrotated <span class="ket">|&psi;&rang;</span></span>
+          <span id="legGate" hidden><i class="swatch" style="background:var(--gate)"></i> gate axis &amp; path</span>
           <span class="hint">drag the arrow</span>
+        </div>
+      </section>
+
+      <section class="panel">
+        <header>
+          <h2>Gates</h2>
+          <span class="note">changes the state</span>
+        </header>
+        <div class="panel-body">
+          <div class="gates-grid">
+            <button class="gate" type="button" data-gate="X"><b>X</b><small>180&deg; x</small></button>
+            <button class="gate" type="button" data-gate="Y"><b>Y</b><small>180&deg; y</small></button>
+            <button class="gate" type="button" data-gate="Z"><b>Z</b><small>180&deg; z</small></button>
+            <button class="gate" type="button" data-gate="H"><b>H</b><small>180&deg; x+z</small></button>
+            <button class="gate" type="button" data-gate="S"><b>S</b><small>90&deg; z</small></button>
+            <button class="gate" type="button" data-gate="Sd"><b>S&dagger;</b><small>&minus;90&deg; z</small></button>
+            <button class="gate" type="button" data-gate="T"><b>T</b><small>45&deg; z</small></button>
+            <button class="gate" type="button" data-gate="Td"><b>T&dagger;</b><small>&minus;45&deg; z</small></button>
+          </div>
+          <div class="gate-rot">
+            <button class="gate param" type="button" data-gate="RX"><b>R<sub>x</sub>(&alpha;)</b><small>&alpha; about x</small></button>
+            <button class="gate param" type="button" data-gate="RY"><b>R<sub>y</sub>(&alpha;)</b><small>&alpha; about y</small></button>
+            <button class="gate param" type="button" data-gate="RZ"><b>R<sub>z</sub>(&alpha;)</b><small>&alpha; about z</small></button>
+          </div>
+
+          <div class="alpha">
+            <span class="tag">&alpha;</span>
+            <span class="lab">Turn angle for the three <span class="mvar">R</span> gates</span>
+            <span class="num"><input type="number" id="alNum" min="-360" max="360" step="1" value="90" aria-label="Rotation angle alpha in degrees">&deg;</span>
+            <input type="range" id="al" min="-360" max="360" step="1" value="90" aria-label="Rotation angle alpha">
+          </div>
+
+          <div class="hist">
+            <span class="hl">Applied</span>
+            <span id="histList"><span class="empty">nothing yet</span></span>
+            <span class="sp">
+              <button class="btn" type="button" id="undoGate">Undo</button>
+              <button class="btn" type="button" id="clearGates">Reset to <span class="k">|0&rang;</span></button>
+            </span>
+          </div>
+        </div>
+        <p class="callout">A gate is a rotation of the arrow about a fixed axis, so it <b>does</b> change <span class="ket">|&psi;&rang;</span> and every number below. Watch the sliders and the amplitudes move with it.</p>
+      </section>
+
+      <section class="panel">
+        <header>
+          <h2>What the gate did</h2>
+          <span class="note" id="gdTag">no gate yet</span>
+        </header>
+        <div class="gd-empty" id="gdEmpty">Press a gate above. The sphere draws its rotation axis, the circle the tip travels on and the arc actually swept, and this panel breaks the move down.</div>
+        <div class="gd" id="gdBody" hidden>
+          <div>
+            <div class="hd">The rotation</div>
+            <p class="spin" id="gdSpin"></p>
+            <p class="decomp" id="gdView" hidden></p>
+            <div class="matline">
+              <span class="name" id="gdName"></span>
+              <span class="name">=</span>
+              <span class="mat"><span id="gm00"></span><span id="gm01"></span><span id="gm10"></span><span id="gm11"></span></span>
+            </div>
+            <p class="decomp" id="gdDecomp"></p>
+            <p class="applied" id="gdApplied"></p>
+            <p class="flag" id="gdFlag" hidden></p>
+          </div>
+          <div>
+            <div class="hd">Before and after</div>
+            <table class="ba">
+              <thead><tr><th></th><th>before</th><th>after</th></tr></thead>
+              <tbody>
+                <tr><td>&theta;</td><td id="bfTh"></td><td id="afTh"></td></tr>
+                <tr><td>&phi;</td><td id="bfPh"></td><td id="afPh"></td></tr>
+                <tr><td>&alpha;</td><td id="bfA"></td><td id="afA"></td></tr>
+                <tr><td>&beta;</td><td id="bfB"></td><td id="afB"></td></tr>
+                <tr><td>P(0)</td><td id="bfP0"></td><td id="afP0"></td></tr>
+                <tr><td>P(1)</td><td id="bfP1"></td><td id="afP1"></td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
 
@@ -471,6 +649,7 @@ body{
             <label><input type="checkbox" id="tGrid" checked> Lat/long mesh</label>
             <label><input type="checkbox" id="tGuides" checked> &theta;/&phi; guides</label>
             <label><input type="checkbox" id="tLabels" checked> Labels</label>
+            <label><input type="checkbox" id="tPath" checked> Last gate path</label>
             <label><input type="checkbox" id="tSpin"> Precess about z</label>
           </div>
         </div>
@@ -565,7 +744,7 @@ body{
   /* ---------------- state ---------------- */
   var rot  = { x: 0, y: 0, z: 0 };     // degrees, swings the arrow only
   var qs   = { th: 60, ph: 120 };      // degrees, the qubit the equation is written from
-  var opts = { grid: true, guides: true, labels: true, spin: false };
+  var opts = { grid: true, guides: true, labels: true, path: true, spin: false };
   var MV = [[1,0,0],[0,1,0],[0,0,1]];  // Rx*Ry*Rz - applied to the arrow, never the frame
 
   function buildMV() {
@@ -585,7 +764,7 @@ body{
       text: g('--c-text'), dim: g('--c-dim'), wire: g('--c-wire'),
       outline: g('--c-outline'), guide: g('--c-guide'),
       x: g('--c-x'), y: g('--c-y'), z: g('--c-z'), state: g('--c-state'),
-      base: g('--c-base'),
+      base: g('--c-base'), gate: g('--c-gate'),
       sph1: g('--c-sph1'), sph2: g('--c-sph2')
     };
   }
@@ -617,6 +796,15 @@ body{
     return [CR[0]*a + CU[0]*b + CW[0]*c,
             CR[1]*a + CU[1]*b + CW[1]*c,
             CR[2]*a + CU[2]*b + CW[2]*c];
+  }
+
+  /* Everything that belongs to the state - the arrow, a gate's axis and its
+     swept arc - rides along with the visual rotation so the picture stays
+     internally consistent. The labelled frame itself never moves. */
+  function mvAll(pts) {
+    var o = new Array(pts.length);
+    for (var i = 0; i < pts.length; i++) o[i] = app(MV, pts[i]);
+    return o;
   }
 
   /* MV is a rotation, so its inverse is its transpose. */
@@ -704,10 +892,17 @@ body{
     return [Math.sin(t)*Math.cos(f), Math.sin(t)*Math.sin(f), Math.cos(t)];
   }
   function shownVector() { return app(MV, baseVector()); }
+  /* Rotations leave dust: X on |0> lands the arrow at (0, -1.2e-16, -1), and a
+     raw atan2 turns that dust into phi = 270 deg on a pole where phi means
+     nothing. Snap the in-plane components, and fold a phi that has crept up to
+     a full turn back onto 0, so the readouts say what the algebra says. */
   function polarOf(v) {
+    var x = Math.abs(v[0]) < 1e-9 ? 0 : v[0];
+    var y = Math.abs(v[1]) < 1e-9 ? 0 : v[1];
     var t = Math.acos(Math.max(-1, Math.min(1, v[2])));
-    var f = Math.atan2(v[1], v[0]);
+    var f = (x === 0 && y === 0) ? 0 : Math.atan2(y, x);
     if (f < 0) f += Math.PI * 2;
+    if (f >= Math.PI * 2 - 1e-9) f = 0;
     return [t, f];
   }
 
@@ -754,12 +949,44 @@ body{
       stroke3(segment([0,0,0], foot, 12), layer, PAL.guide, 1, [2,4], guideA);
     }
 
+    drawGatePath(layer, back);
+
     // the unrotated state keeps a mark on the sphere, so the equation below
     // always names something you can still see
     if (isRotated())
       stroke3(segment([0,0,0], baseVector(), 28), layer, PAL.base, 1.4, [5,4], back ? 0.30 : 0.85);
 
     stroke3(segment([0,0,0], v, 28), layer, PAL.state, 2.6, [], vecA);
+  }
+
+  function drawGatePath(layer, back) {
+    if (!gpath || !opts.path) return;
+    var nn = gpath.axis, i, t, pts = [];
+
+    // the axis the gate turns about, drawn clear through the sphere
+    stroke3(mvAll(segment(vscale(nn, -1.13), vscale(nn, 1.13))),
+            layer, PAL.gate, 1.6, [7, 5], back ? 0.26 : 0.78);
+
+    // the circle the tip is confined to, then the part of it actually swept
+    var c = vscale(nn, dot(nn, gpath.r0));
+    var u = vsub(gpath.r0, c), rho = vlen(u);
+    if (rho < 1e-6) return;                       // state sits on the axis: no orbit
+    u = vscale(u, 1/rho);
+    var v = cross(nn, u);
+    for (i = 0; i <= 96; i++) {
+      t = i/96 * Math.PI * 2;
+      pts.push(vadd(c, vscale(vadd(vscale(u, Math.cos(t)), vscale(v, Math.sin(t))), rho)));
+    }
+    stroke3(mvAll(pts), layer, PAL.gate, 1, [2, 5], back ? 0.13 : 0.30);
+
+    var sweep = gpath.angle * DEG * gpath.frac;
+    var m = Math.max(6, Math.round(Math.abs(sweep) / (Math.PI/90)));
+    pts = [];
+    for (i = 0; i <= m; i++) {
+      t = sweep * i/m;
+      pts.push(vadd(c, vscale(vadd(vscale(u, Math.cos(t)), vscale(v, Math.sin(t))), rho)));
+    }
+    stroke3(mvAll(pts), layer, PAL.gate, 2.2, [], back ? 0.28 : 0.95);
   }
 
   function drawBody() {
@@ -779,6 +1006,17 @@ body{
   }
 
   function drawTip() {
+    if (gpath && opts.path) {                     // where the arrow started
+      var S = project(app(MV, gpath.r0));
+      ctx.save();
+      ctx.globalAlpha = S[2] >= 0 ? 0.95 : 0.42;
+      ctx.strokeStyle = PAL.gate;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(S[0], S[1], Math.max(3, RAD*0.016), 0, Math.PI*2);
+      ctx.stroke();
+      ctx.restore();
+    }
     if (isRotated()) {
       var B = project(baseVector());
       ctx.save();
@@ -954,10 +1192,208 @@ body{
     $('dPh').textContent = n(ph, 1) + '°';
     $('dR').textContent = '(' + n(v[0], 3) + ', ' + n(v[1], 3) + ', ' + n(v[2], 3) + ')';
     $('legBase').hidden = !on;
+    var gv = $('gdView');
+    if (gv) {
+      gv.hidden = !on;
+      if (on) gv.innerHTML = 'A visual rotation is active, so the arrow and this axis are drawn turned by it. ' +
+        'Reset it to 0&deg;, 0&deg;, 0&deg; to see the gate against the labelled axes.';
+    }
     $('viewNote').textContent = on
       ? 'arrow at θ′ ' + n(th, 1) + '° · φ′ ' + n(ph, 1) + '°'
       : 'arrow at θ ' + n(th, 1) + '° · φ ' + n(ph, 1) + '° · unrotated';
   }
+
+  /* ---------------- gates ----------------
+     A gate is a unitary U on the amplitudes. On the sphere it is exactly a
+     rigid rotation of the arrow about a fixed axis, so the drawing rotates the
+     Bloch vector directly and the amplitudes are re-derived from where it
+     lands - which is why global phase never shows up in the picture.        */
+  var SQ = Math.SQRT1_2;
+  var gpath = null, lastGate = null, history = [];
+  var anim = { raf: 0, t0: 0 };
+  var REDUCED = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function vadd(a,b){ return [a[0]+b[0], a[1]+b[1], a[2]+b[2]]; }
+  function vsub(a,b){ return [a[0]-b[0], a[1]-b[1], a[2]-b[2]]; }
+  function vscale(a,k){ return [a[0]*k, a[1]*k, a[2]*k]; }
+  function vlen(a){ return Math.hypot(a[0], a[1], a[2]); }
+
+  /* Rotate r by g radians about unit axis nn (right-hand rule). This is what
+     U = exp(-i g n.sigma / 2) does to the Bloch vector. */
+  function rodrigues(r, nn, g) {
+    var c = Math.cos(g), s = Math.sin(g), k = dot(nn, r) * (1 - c), cr = cross(nn, r);
+    return [r[0]*c + cr[0]*s + nn[0]*k,
+            r[1]*c + cr[1]*s + nn[1]*k,
+            r[2]*c + cr[2]*s + nn[2]*k];
+  }
+  function polarDeg(v) { var q = polarOf(v); return { th: q[0]/DEG, ph: q[1]/DEG }; }
+
+  function cmul(a,b){ return [a[0]*b[0] - a[1]*b[1], a[0]*b[1] + a[1]*b[0]]; }
+  function cadd(a,b){ return [a[0] + b[0], a[1] + b[1]]; }
+  function ampsOf(th, ph) {
+    var t = th*DEG, f = ph*DEG, sb = Math.sin(t/2);
+    return [[Math.cos(t/2), 0], [sb*Math.cos(f), sb*Math.sin(f)]];
+  }
+  function applyMatrix(m, v) {
+    return [cadd(cmul(m[0][0], v[0]), cmul(m[0][1], v[1])),
+            cadd(cmul(m[1][0], v[0]), cmul(m[1][1], v[1]))];
+  }
+  /* Divide out the global phase so the |0> amplitude is real and non-negative. */
+  function fixPhase(v) {
+    var a = v[0], b = v[1];
+    var ang = Math.hypot(a[0], a[1]) > 1e-9 ? Math.atan2(a[1], a[0]) : Math.atan2(b[1], b[0]);
+    var e = [Math.cos(-ang), Math.sin(-ang)];
+    return [cmul(a, e), cmul(b, e)];
+  }
+  function sameAmps(u, v) {
+    return Math.abs(u[0][0]-v[0][0]) < 5e-4 && Math.abs(u[0][1]-v[0][1]) < 5e-4 &&
+           Math.abs(u[1][0]-v[1][0]) < 5e-4 && Math.abs(u[1][1]-v[1][1]) < 5e-4;
+  }
+  function nz(v) {
+    if (Math.abs(v) < 5e-5) return '0';
+    return (Math.round(v*10000)/10000).toString().replace('-', '\u2212');
+  }
+  function cfmt(z) {
+    var re = z[0], im = z[1];
+    var zr = Math.abs(re) < 5e-5, zi = Math.abs(im) < 5e-5;
+    var mag = function (x) { return Math.abs(Math.abs(x) - 1) < 5e-5 ? '' : nz(Math.abs(x)); };
+    if (zr && zi) return '0';
+    if (zi) return nz(re);
+    if (zr) return (im < 0 ? '\u2212' : '') + mag(im) + 'i';
+    return nz(re) + (im < 0 ? ' \u2212 ' : ' + ') + mag(im) + 'i';
+  }
+
+  var XH = 'x\u0302', YH = 'y\u0302', ZH = 'z\u0302';
+  function gateSpec(key, a) {
+    var h = a*DEG/2, c = Math.cos(h), s = Math.sin(h);
+    switch (key) {
+      case 'X':  return { label:'X', name:'Pauli-X', axis:[1,0,0], ax:XH, angle:180, gamma:90,
+                          m:[[[0,0],[1,0]],[[1,0],[0,0]]] };
+      case 'Y':  return { label:'Y', name:'Pauli-Y', axis:[0,1,0], ax:YH, angle:180, gamma:90,
+                          m:[[[0,0],[0,-1]],[[0,1],[0,0]]] };
+      case 'Z':  return { label:'Z', name:'Pauli-Z', axis:[0,0,1], ax:ZH, angle:180, gamma:90,
+                          m:[[[1,0],[0,0]],[[0,0],[-1,0]]] };
+      case 'H':  return { label:'H', name:'Hadamard', axis:[SQ,0,SQ], ax:'(' + XH + ' + ' + ZH + ')/\u221a2',
+                          angle:180, gamma:90, m:[[[SQ,0],[SQ,0]],[[SQ,0],[-SQ,0]]] };
+      case 'S':  return { label:'S', name:'Phase', axis:[0,0,1], ax:ZH, angle:90, gamma:45,
+                          m:[[[1,0],[0,0]],[[0,0],[0,1]]] };
+      case 'Sd': return { label:'S&dagger;', name:'Inverse phase', axis:[0,0,1], ax:ZH, angle:-90, gamma:-45,
+                          m:[[[1,0],[0,0]],[[0,0],[0,-1]]] };
+      case 'T':  return { label:'T', name:'T', axis:[0,0,1], ax:ZH, angle:45, gamma:22.5,
+                          m:[[[1,0],[0,0]],[[0,0],[SQ,SQ]]] };
+      case 'Td': return { label:'T&dagger;', name:'Inverse T', axis:[0,0,1], ax:ZH, angle:-45, gamma:-22.5,
+                          m:[[[1,0],[0,0]],[[0,0],[SQ,-SQ]]] };
+      case 'RX': return { label:'R<sub>x</sub>(' + nz(a) + '&deg;)', name:'Rotation about x', axis:[1,0,0], ax:XH,
+                          angle:a, gamma:0, m:[[[c,0],[0,-s]],[[0,-s],[c,0]]] };
+      case 'RY': return { label:'R<sub>y</sub>(' + nz(a) + '&deg;)', name:'Rotation about y', axis:[0,1,0], ax:YH,
+                          angle:a, gamma:0, m:[[[c,0],[-s,0]],[[s,0],[c,0]]] };
+      case 'RZ': return { label:'R<sub>z</sub>(' + nz(a) + '&deg;)', name:'Rotation about z', axis:[0,0,1], ax:ZH,
+                          angle:a, gamma:0, m:[[[c,-s],[0,0]],[[0,0],[c,s]]] };
+    }
+    return null;
+  }
+
+  function setState(th, ph) {
+    qs.th = th; qs.ph = ph;
+    $('th').value = th;  $('thNum').value = Math.round(th*10)/10;
+    $('ph').value = ph;  $('phNum').value = Math.round(ph*10)/10;
+    updateState(); updateRotation(); draw();
+  }
+
+  function applyGate(key) {
+    if (anim.raf) return;
+    var g = gateSpec(key, parseFloat($('al').value) || 0);
+    if (!g || Math.abs(g.angle) < 1e-9) return;
+    var nn = unit(g.axis), r0 = baseVector();
+    var after = polarDeg(rodrigues(r0, nn, g.angle*DEG));
+
+    history.push({ label: g.label, before: { th: qs.th, ph: qs.ph } });
+    gpath = { axis: nn, angle: g.angle, r0: r0, frac: 0 };
+    lastGate = { g: g, before: { th: qs.th, ph: qs.ph }, after: after };
+    renderHistory();
+    renderGate();
+
+    if (REDUCED) { gpath.frac = 1; setState(after.th, after.ph); return; }
+    var dur = Math.min(1100, 380 + Math.abs(g.angle)*2.4);
+    anim.t0 = performance.now();
+    var tick = function (now) {
+      var u = Math.min(1, (now - anim.t0)/dur);
+      gpath.frac = u < 0.5 ? 2*u*u : 1 - Math.pow(-2*u + 2, 2)/2;
+      if (u < 1) {
+        var q = polarDeg(rodrigues(gpath.r0, gpath.axis, gpath.angle*DEG*gpath.frac));
+        setState(q.th, q.ph);
+        anim.raf = requestAnimationFrame(tick);
+      } else {
+        anim.raf = 0; gpath.frac = 1;
+        setState(after.th, after.ph);
+      }
+    };
+    anim.raf = requestAnimationFrame(tick);
+  }
+
+  function renderHistory() {
+    var el = $('histList');
+    if (!history.length) { el.innerHTML = '<span class="empty">nothing yet</span>'; return; }
+    var out = '';
+    for (var i = 0; i < history.length; i++)
+      out += '<span class="chip' + (i === history.length - 1 ? ' last' : '') + '">' + history[i].label + '</span> ';
+    el.innerHTML = out;
+  }
+
+  function renderGate() {
+    var on = !!lastGate;
+    $('gdEmpty').hidden = on;
+    $('gdBody').hidden = !on;
+    $('legGate').hidden = !(on && opts.path);
+    if (!on) { $('gdTag').textContent = 'no gate yet'; return; }
+
+    var g = lastGate.g, b = lastGate.before, a = lastGate.after;
+    $('gdTag').textContent = history.length + (history.length === 1 ? ' gate applied' : ' gates applied');
+    $('gdSpin').innerHTML = g.name + ' turns the arrow <b>' + nz(g.angle) +
+      '&deg;</b> about <b>' + g.ax + '</b> by the right-hand rule.';
+    $('gdName').innerHTML = g.label;
+    $('gm00').textContent = cfmt(g.m[0][0]); $('gm01').textContent = cfmt(g.m[0][1]);
+    $('gm10').textContent = cfmt(g.m[1][0]); $('gm11').textContent = cfmt(g.m[1][1]);
+
+    var half = 'R<sub>n</sub>(' + nz(g.angle) + '&deg;) = exp(&minus;i&thinsp;' + nz(g.angle/2) +
+               '&deg;&thinsp;n&middot;&sigma;) &mdash; the sphere turns by the full angle, the ket by half of it.';
+    $('gdDecomp').innerHTML = (g.gamma
+      ? 'U = e<sup>i&thinsp;' + nz(g.gamma) + '&deg;</sup>&thinsp;R<sub>n</sub>(' + nz(g.angle) +
+        '&deg;). That leading factor is a global phase, so the arrow only ever sees the rotation. '
+      : 'U = R<sub>n</sub>(' + nz(g.angle) + '&deg;) exactly, with no leading phase. ') + half;
+
+    var vb = ampsOf(b.th, b.ph);
+    var raw = applyMatrix(g.m, vb), fixed = fixPhase(raw);
+    $('gdApplied').innerHTML = '<span class="k">U|&psi;&rang;</span> = <span class="amp">' + cfmt(raw[0]) +
+      '</span> <span class="k">|0&rang;</span> + <span class="amp">' + cfmt(raw[1]) + '</span> <span class="k">|1&rang;</span>';
+
+    var perp = vlen(vsub(gpath.r0, vscale(gpath.axis, dot(gpath.axis, gpath.r0))));
+    if (perp < 1e-6) {
+      $('gdFlag').hidden = false;
+      $('gdFlag').innerHTML = 'The state was already sitting on this axis, so the arrow does not move at all. ' +
+        'The gate multiplies it by a phase, and a phase on the whole ket is unobservable.';
+    } else if (!sameAmps(raw, fixed)) {
+      $('gdFlag').hidden = false;
+      $('gdFlag').innerHTML = 'That answer carries a global phase. Divide it out and the same state reads ' +
+        cfmt(fixed[0]) + '&thinsp;<span class="ket">|0&rang;</span> + ' + cfmt(fixed[1]) +
+        '&thinsp;<span class="ket">|1&rang;</span>, which is what every panel below shows.';
+    } else $('gdFlag').hidden = true;
+
+    var ab = ampsOf(b.th, b.ph), aa = ampsOf(a.th, a.ph);
+    function put(i0, i1, v0, v1) {
+      $(i0).textContent = v0;
+      $(i1).textContent = v1;
+      $(i1).className = (v0 === v1) ? '' : 'chg';
+    }
+    put('bfTh', 'afTh', n(b.th,1) + '\u00b0', n(a.th,1) + '\u00b0');
+    put('bfPh', 'afPh', n(b.ph,1) + '\u00b0', n(a.ph,1) + '\u00b0');
+    put('bfA', 'afA', cfmt(ab[0]), cfmt(aa[0]));
+    put('bfB', 'afB', cfmt(ab[1]), cfmt(aa[1]));
+    put('bfP0', 'afP0', n(ab[0][0]*ab[0][0], 4), n(aa[0][0]*aa[0][0], 4));
+    put('bfP1', 'afP1', n(1 - ab[0][0]*ab[0][0], 4), n(1 - aa[0][0]*aa[0][0], 4));
+  }
+
+  function clearGatePath() { gpath = null; lastGate = null; renderHistory(); renderGate(); }
 
   /* ---------------- wiring ---------------- */
   function clamp(v, lo, hi) { return v < lo ? lo : (v > hi ? hi : v); }
@@ -992,8 +1428,30 @@ body{
 
   $('resetView').addEventListener('click', function () { ctlX.set(0); ctlY.set(0); ctlZ.set(0); });
 
-  [['tGrid','grid'], ['tGuides','guides'], ['tLabels','labels']].forEach(function (p) {
-    $(p[0]).addEventListener('change', function () { opts[p[1]] = this.checked; draw(); });
+  [['tGrid','grid'], ['tGuides','guides'], ['tLabels','labels'], ['tPath','path']].forEach(function (p) {
+    $(p[0]).addEventListener('change', function () {
+      opts[p[1]] = this.checked;
+      $('legGate').hidden = !(lastGate && opts.path);
+      draw();
+    });
+  });
+
+  bindPair('al', 'alNum', -360, 360, function () {});
+
+  Array.prototype.forEach.call(document.querySelectorAll('.gate[data-gate]'), function (b) {
+    b.addEventListener('click', function () { applyGate(b.getAttribute('data-gate')); });
+  });
+  $('undoGate').addEventListener('click', function () {
+    if (anim.raf || !history.length) return;
+    var h = history.pop();
+    clearGatePath();
+    setState(h.before.th, h.before.ph);
+  });
+  $('clearGates').addEventListener('click', function () {
+    if (anim.raf) return;
+    history = [];
+    clearGatePath();
+    setState(0, 0);
   });
 
   var spinRAF = 0, spinLast = 0;
@@ -1012,6 +1470,7 @@ body{
   var presets = document.querySelectorAll('.btn[data-th]');
   Array.prototype.forEach.call(presets, function (b) {
     b.addEventListener('click', function () {
+      history = []; clearGatePath();
       ctlT.set(parseFloat(b.getAttribute('data-th')));
       ctlP.set(parseFloat(b.getAttribute('data-ph')));
     });
@@ -1021,6 +1480,7 @@ body{
      so what moves is the state behind it and the arrow lands where you point. */
   var drag = false;
   function aim(e) {
+    if (gpath) { history = []; clearGatePath(); }
     var r = canvas.getBoundingClientRect();
     var b = unrotate(unproject(e.clientX - r.left, e.clientY - r.top));
     var pol = polarOf(b);
@@ -1076,6 +1536,7 @@ body{
   syncThemeBtn();
   updateState();
   updateRotation();
+  renderGate();
   resize();
   if (window.ResizeObserver) new ResizeObserver(resize).observe(canvas.parentElement);
   else window.addEventListener('resize', resize);
