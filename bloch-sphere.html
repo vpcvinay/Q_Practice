@@ -606,6 +606,7 @@ body{
           </div>
           <span class="cap">tr &rho;&sup2; = 1 &middot; pure</span>
         </div>
+        <p class="callout" id="psiNote" hidden></p>
       </section>
     </div>
 
@@ -1366,7 +1367,11 @@ body{
     $('gdEmpty').hidden = on;
     $('gdBody').hidden = !on;
     $('legGate').hidden = !(on && opts.path);
-    if (!on) { $('gdTag').textContent = 'no gate yet'; return; }
+    if (!on) {
+      $('gdTag').textContent = 'no gate yet';
+      $('psiNote').hidden = true;              // the note belongs to a gate; no gate, no note
+      return;
+    }
 
     var g = lastGate.g, b = lastGate.before, a = lastGate.after;
     $('gdTag').textContent = history.length + (history.length === 1 ? ' gate applied' : ' gates applied');
@@ -1403,6 +1408,16 @@ body{
     }
     $('gdApplied').innerHTML = lines;
 
+    var pn = $('psiNote');
+    pn.hidden = !isEig;
+    if (isEig) {
+      pn.innerHTML = hasPhase
+        ? 'The last gate left every number in this panel alone. It returned <b>' + cfmt(lam) +
+          '</b>&thinsp;<span class="ket">|&psi;&rang;</span> &mdash; the same physical state carrying a global phase, ' +
+          'which this panel drops by construction. The factor itself is in <b>What the gate did</b> above.'
+        : 'The last gate returned <span class="ket">|&psi;&rang;</span> itself, so there is nothing here to update.';
+    }
+
     if (isEig) {
       $('gdFlag').hidden = false;
       $('gdFlag').innerHTML = '<span class="ket">|&psi;&rang;</span> is an eigenvector of this gate with eigenvalue <b>' +
@@ -1432,7 +1447,10 @@ body{
     put('bfP1', 'afP1', n(1 - ab[0][0]*ab[0][0], 4), n(1 - aa[0][0]*aa[0][0], 4));
   }
 
-  function clearGatePath() { gpath = null; lastGate = null; renderHistory(); renderGate(); }
+  function clearGatePath() {
+    gpath = null; lastGate = null;
+    renderHistory(); renderGate();
+  }
 
   /* ---------------- wiring ---------------- */
   function clamp(v, lo, hi) { return v < lo ? lo : (v > hi ? hi : v); }
@@ -1462,8 +1480,9 @@ body{
   var ctlX = bindPair('vx', 'vxNum', -180, 180, function (v) { rot.x = v; updateRotation(); draw(); });
   var ctlY = bindPair('vy', 'vyNum', -180, 180, function (v) { rot.y = v; updateRotation(); draw(); });
   var ctlZ = bindPair('vz', 'vzNum', -180, 180, function (v) { rot.z = v; updateRotation(); draw(); });
-  var ctlT = bindPair('th', 'thNum', 0, 180, function (v) { qs.th = v; updateState(); updateRotation(); draw(); });
-  var ctlP = bindPair('ph', 'phNum', 0, 360, function (v) { qs.ph = v; updateState(); updateRotation(); draw(); });
+  function manualEdit() { if (gpath && !anim.raf) clearGatePath(); }
+  var ctlT = bindPair('th', 'thNum', 0, 180, function (v) { qs.th = v; manualEdit(); updateState(); updateRotation(); draw(); });
+  var ctlP = bindPair('ph', 'phNum', 0, 360, function (v) { qs.ph = v; manualEdit(); updateState(); updateRotation(); draw(); });
 
   $('resetView').addEventListener('click', function () { ctlX.set(0); ctlY.set(0); ctlZ.set(0); });
 
