@@ -572,6 +572,7 @@ body{
               <span class="mat"><span id="gm00"></span><span id="gm01"></span><span id="gm10"></span><span id="gm11"></span></span>
             </div>
             <p class="decomp" id="gdDecomp"></p>
+            <p class="decomp" id="gdEigs"></p>
             <p class="applied" id="gdApplied"></p>
             <p class="flag" id="gdFlag" hidden></p>
           </div>
@@ -1360,6 +1361,12 @@ body{
     if (Math.abs(v) < 5e-5) return '0';
     return (Math.round(v*10000)/10000).toString().replace('-', '\u2212');
   }
+  /* Bracket a factor only when it is a sum, so "(0.7071 - 0.7071i) x (...)"
+     cannot be misread while "-1 x (...)" stays uncluttered. */
+  function braced(z) {
+    var t = cfmt(z);
+    return (Math.abs(z[0]) < 5e-5 || Math.abs(z[1]) < 5e-5) ? t : '(' + t + ')';
+  }
   function cfmt(z) {
     var re = z[0], im = z[1];
     var zr = Math.abs(re) < 5e-5, zi = Math.abs(im) < 5e-5;
@@ -1457,7 +1464,7 @@ body{
     $('phPhi').textContent = n(qs.ph, 1) + '\u00b0  angle between the hands';
     $('phDeg').textContent = n(gdeg, 1) + '\u00b0  turn of the pair';
     $('phFactor').innerHTML = cfmt(lam);
-    $('phKet').innerHTML = '<span class="k">e<sup>i&gamma;</sup>|&psi;&rang;</span> = ' + cfmt(full[0]) +
+    $('phKet').innerHTML = '<span class="k">e<sup>i&gamma;</sup>|&psi;&rang;</span> = ' + braced(full[0]) +
       ' <span class="k">|0&rang;</span> ' + t.op + ' ' + (t.simple ? t.txt : '(' + t.txt + ')') +
       ' <span class="k">|1&rang;</span>';
 
@@ -1542,6 +1549,19 @@ body{
         '&deg;). That leading factor is a global phase, so the arrow only ever sees the rotation. '
       : 'U = R<sub>n</sub>(' + nz(g.angle) + '&deg;) exactly, with no leading phase. ') + half;
 
+    /* Both ends of the rotation axis are fixed points, and they pick up
+       opposite half-angle phases: exp(-i angle/2) at +n, exp(+i angle/2) at -n,
+       both carrying whatever overall phase the gate's matrix is written with.
+       Their ratio, exp(i angle), is the part no convention can move.        */
+    var hg = g.gamma*DEG, ha = g.angle*DEG/2;
+    var lPlus  = [Math.cos(hg - ha), Math.sin(hg - ha)];
+    var lMinus = [Math.cos(hg + ha), Math.sin(hg + ha)];
+    var ratio  = [Math.cos(g.angle*DEG), Math.sin(g.angle*DEG)];
+    $('gdEigs').innerHTML = 'Both ends of that axis are fixed points, so both are eigenvectors &mdash; but they ' +
+      'take opposite half-angle phases: <b>' + cfmt(lPlus) + '</b> at the +' + g.ax + ' end, <b>' + cfmt(lMinus) +
+      '</b> at the &minus;' + g.ax + ' end. Rewriting U with a different overall phase slides both together; ' +
+      'their ratio <b>' + cfmt(ratio) + '</b> = e<sup>i&thinsp;' + nz(g.angle) + '&deg;</sup> is the part no convention can move.';
+
     var vb = ampsOf(b.th, b.ph);
     var raw = applyMatrix(g.m, vb), fixed = fixPhase(raw);
     var gam = phaseOf(raw);                        // global phase riding on the result
@@ -1550,14 +1570,14 @@ body{
     var isEig = sameAmps(fixed, vb);               // U|psi> = lambda|psi>
 
     var tr = splitSign(raw[1], cfmt), tf = splitSign(fixed[1], cfmt);
-    var lines = '<span class="ln"><span class="k">U|&psi;&rang;</span> = <span class="amp">' + cfmt(raw[0]) +
+    var lines = '<span class="ln"><span class="k">U|&psi;&rang;</span> = <span class="amp">' + braced(raw[0]) +
       '</span> <span class="k">|0&rang;</span> ' + tr.op + ' <span class="amp">' +
       (tr.simple ? tr.txt : '(' + tr.txt + ')') + '</span> <span class="k">|1&rang;</span></span>';
     if (hasPhase) {
-      lines += '<span class="ln">&nbsp;&nbsp;&nbsp;&nbsp; = <span class="amp">' + cfmt(lam) + '</span> \u00d7 ( ' +
-        cfmt(fixed[0]) + ' <span class="k">|0&rang;</span> ' + tf.op + ' ' +
+      lines += '<span class="ln">&nbsp;&nbsp;&nbsp;&nbsp; = <span class="amp">' + braced(lam) + '</span> \u00d7 ( ' +
+        braced(fixed[0]) + ' <span class="k">|0&rang;</span> ' + tf.op + ' ' +
         (tf.simple ? tf.txt : '(' + tf.txt + ')') + ' <span class="k">|1&rang;</span> )' +
-        (isEig ? ' = <span class="amp">' + cfmt(lam) + '</span> <span class="k">|&psi;&rang;</span>' : '') +
+        (isEig ? ' = <span class="amp">' + braced(lam) + '</span> <span class="k">|&psi;&rang;</span>' : '') +
         '</span>';
     }
     $('gdApplied').innerHTML = lines;
@@ -1575,7 +1595,7 @@ body{
     if (isEig) {
       $('gdFlag').hidden = false;
       $('gdFlag').innerHTML = '<span class="ket">|&psi;&rang;</span> is an eigenvector of this gate with eigenvalue <b>' +
-        cfmt(lam) + '</b>, so U<span class="ket">|&psi;&rang;</span> = <b>' + cfmt(lam) + '</b><span class="ket">|&psi;&rang;</span>. ' +
+        cfmt(lam) + '</b>, so U<span class="ket">|&psi;&rang;</span> = <b>' + braced(lam) + '</b><span class="ket">|&psi;&rang;</span>. ' +
         (hasPhase
           ? 'That factor is a <b>global phase</b>: the same physical state. A point on this sphere is a whole ray of kets &mdash; ' +
             'e<sup>i&gamma;</sup><span class="ket">|&psi;&rang;</span> for every &gamma; maps to one point &mdash; so there is nowhere for the ' +
