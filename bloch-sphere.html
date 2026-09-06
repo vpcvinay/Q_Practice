@@ -348,30 +348,34 @@ body{
 
 /* ---- the phase dial: the circle the sphere quotients away ---- */
 .phase{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
-.dial{width:148px;height:148px;flex:0 0 auto}
-.dial .ring{fill:none;stroke:var(--rule);stroke-width:1.5}
+.dial{width:186px;height:186px;flex:0 0 auto}
+.dial .ring{fill:none;stroke:var(--rule);stroke-width:1.2}
 .dial .ax{stroke:var(--rule-soft);stroke-width:1}
-.dial .sweep{fill:none;stroke:var(--gate);stroke-width:2.5;opacity:.4}
-.dial .ndl{stroke:var(--gate);stroke-width:2.5;stroke-linecap:round}
-.dial .nub{fill:var(--gate)}
-.dial .dl{fill:var(--ink-3);font-family:var(--font-mono);font-size:12px;text-anchor:middle}
-.dial.zero .ndl{stroke:var(--ink-3)}
-.dial.zero .nub{fill:var(--ink-3)}
-.dial.zero .sweep{stroke:var(--ink-3)}
-.pv{min-width:0;flex:1 1 200px;display:grid;gap:7px}
-.pv .big{
-  font-family:var(--font-mono);font-size:22px;color:var(--gate);
-  font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:9px;
+.dial .arm{stroke-width:2.6;stroke-linecap:round}
+.dial .arm.a{stroke:var(--ax-z)} .dial .tip.a{fill:var(--ax-z)}
+.dial .arm.b{stroke:var(--ax-x)} .dial .tip.b{fill:var(--ax-x)}
+.dial .gam{fill:none;stroke:var(--gate);stroke-width:2.6}
+.dial .phi{fill:none;stroke:var(--ink-2);stroke-width:2.6;stroke-dasharray:3 3}
+.dial .dl{fill:var(--ink-3);font-family:var(--font-mono);font-size:11px;text-anchor:middle}
+.dial .ann{font-family:var(--font-math);font-style:italic;font-size:13px;text-anchor:middle}
+.dial .ann.a{fill:var(--ax-z)} .dial .ann.b{fill:var(--ax-x)}
+.dial .ann.g{fill:var(--gate)} .dial .ann.p{fill:var(--ink-2)}
+
+.pv{min-width:0;flex:1 1 220px;display:grid;gap:9px;align-content:center}
+.pv .row{
+  display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:baseline;
+  font-family:var(--font-mono);font-size:12.5px;font-variant-numeric:tabular-nums;color:var(--ink);
 }
-.pv .big .lbl{font-family:var(--font-math);font-style:italic;font-size:16px;color:var(--ink-2)}
-.pv .big .lbl sup{font-size:.66em;vertical-align:super;line-height:0}
-.pv .sub{font-family:var(--font-mono);font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.pv .row .lb{font-family:var(--font-math);font-style:italic;font-size:13.5px;color:var(--ink-3)}
+.pv .row.gam .lb, .pv .row.gam{color:var(--gate)}
+.pv .row.phi .lb{color:var(--ink-2)}
 .pv .kl{
   font-family:var(--font-mono);font-size:12.5px;color:var(--ink);
   overflow-x:auto;white-space:nowrap;padding-bottom:3px;
 }
 .pv .kl .k{font-family:var(--font-math);color:var(--ink-3)}
 .pv .kl .k sup{font-size:.66em;vertical-align:super;line-height:0}
+.pv .sep{height:1px;background:var(--rule-soft)}
 
 .derived{border-top:1px solid var(--rule-soft);padding:11px 14px}
 .derived .hd{
@@ -639,33 +643,49 @@ body{
       <section class="panel">
         <header>
           <h2>Global phase</h2>
-          <span class="note">the sphere's missing dimension</span>
+          <span class="note">two hands, one clock</span>
         </header>
+        <p class="callout"><b>&alpha;</b> and <b>&beta;</b> are complex numbers, so each one is an arrow in the plane below. Their <b>lengths</b> fix the probabilities. The <b>angle between them</b> is <span class="mvar">&phi;</span> &mdash; that is the azimuth on the sphere. Turning <b>both hands together</b> is <span class="mvar">&gamma;</span>, the global phase: it changes neither length and not the angle between them, so nothing on the sphere can move.</p>
         <div class="panel-body">
           <div class="phase">
-            <svg class="dial zero" id="phDial" viewBox="-70 -70 140 140" role="img" aria-labelledby="dialTitle">
-              <title id="dialTitle">The accumulated global phase factor, on the unit circle</title>
-              <circle class="ring" cx="0" cy="0" r="46"></circle>
-              <line class="ax" x1="-58" y1="0" x2="58" y2="0"></line>
-              <line class="ax" x1="0" y1="-58" x2="0" y2="58"></line>
-              <path class="sweep" id="phArc" d=""></path>
-              <g id="phNeedle" transform="rotate(0)">
-                <line class="ndl" x1="0" y1="0" x2="43" y2="0"></line>
-                <circle class="nub" cx="43" cy="0" r="4.5"></circle>
-              </g>
-              <text class="dl" x="62" y="4">1</text>
-              <text class="dl" x="0" y="-52">i</text>
-              <text class="dl" x="-62" y="4">&minus;1</text>
-              <text class="dl" x="0" y="63">&minus;i</text>
+            <svg class="dial" id="phDial" viewBox="-84 -84 168 168" role="img" aria-labelledby="dialTitle">
+              <title id="dialTitle">The amplitudes alpha and beta drawn as arrows in the complex plane</title>
+              <circle class="ring" cx="0" cy="0" r="62"></circle>
+              <line class="ax" x1="-72" y1="0" x2="72" y2="0"></line>
+              <line class="ax" x1="0" y1="-72" x2="0" y2="72"></line>
+              <path class="gam" id="gamArc" d=""></path>
+              <path class="phi" id="phiArc" d=""></path>
+              <line class="arm a" id="armA" x1="0" y1="0" x2="0" y2="0"></line>
+              <circle class="tip a" id="tipA" cx="0" cy="0" r="4"></circle>
+              <line class="arm b" id="armB" x1="0" y1="0" x2="0" y2="0"></line>
+              <circle class="tip b" id="tipB" cx="0" cy="0" r="4"></circle>
+              <text class="ann a" id="labA" x="0" y="0">&alpha;</text>
+              <text class="ann b" id="labB" x="0" y="0">&beta;</text>
+              <text class="ann g" id="labG" x="0" y="0">&gamma;</text>
+              <text class="ann p" id="labP" x="0" y="0">&phi;</text>
+              <text class="dl" x="76" y="4">Re</text>
+              <text class="dl" x="0" y="-76">Im</text>
             </svg>
             <div class="pv">
-              <div class="big"><span class="lbl">e<sup>i&gamma;</sup> =</span> <span id="phFactor">1</span></div>
-              <div class="sub"><span class="mvar">&gamma;</span> = <span id="phDeg">0.0&deg;</span></div>
+              <div class="row"><span class="lb">|&alpha;|</span><span id="phMagA"></span></div>
+              <div class="row"><span class="lb">|&beta;|</span><span id="phMagB"></span></div>
+              <div class="sep"></div>
+              <div class="row phi"><span class="lb">&phi;</span><span id="phPhi"></span></div>
+              <div class="row gam"><span class="lb">&gamma;</span><span id="phDeg"></span></div>
+              <div class="row gam"><span class="lb">e<sup>i&gamma;</sup></span><span id="phFactor"></span></div>
+              <div class="sep"></div>
               <div class="kl" id="phKet"></div>
             </div>
           </div>
+
+          <div class="alpha">
+            <span class="tag">&gamma;</span>
+            <span class="lab">Turn <b>both</b> hands together &mdash; then watch this whole page hold still</span>
+            <span class="num"><input type="number" id="gpNum" min="-180" max="180" step="1" value="0" aria-label="Global phase gamma in degrees">&deg;</span>
+            <input type="range" id="gp" min="-180" max="180" step="1" value="0" aria-label="Global phase gamma">
+          </div>
         </div>
-        <p class="callout">Every probability above is |&lang;m|&psi;&rang;|&sup2;, and |e<sup>i&gamma;</sup>|&sup2; = 1, so no measurement on this qubit can reveal <span class="mvar">&gamma;</span> &mdash; and &rho; = |&psi;&rang;&lang;&psi;| comes out identical too. A normalised ket carries three real degrees of freedom; the sphere draws two of them. <b>This dial is the third.</b> Only gates move it: the angle sliders, the presets and dragging each declare a fresh state, which by convention is the one with <span class="mvar">&gamma;</span> = 0.</p>
+        <p class="callout">Drag <span class="mvar">&gamma;</span> and check for yourself: the arrow, <span class="mvar">&theta;</span>, <span class="mvar">&phi;</span>, both probabilities and every entry of &rho; stay exactly where they were. That is the whole content of the word <b>unobservable</b> &mdash; every measurable quantity is built from |&lang;m|&psi;&rang;|&sup2; or &lang;&psi;|A|&psi;&rang;, and <span class="mvar">&gamma;</span> cancels against its own conjugate in both. It is not a property of the state; it is a property of <b>how you wrote the state down</b>, like the difference between &frac12; and 2/4. Gates move it, and the sliders, presets and dragging reset it, because naming a state picks the version with <span class="mvar">&alpha;</span> pointing along +Re.</p>
       </section>
     </div>
 
@@ -1380,29 +1400,70 @@ body{
     return null;
   }
 
-  /* The phase dial. The sphere is the set of states modulo this circle, so
-     the only honest way to show gamma is to draw the circle the sphere threw
-     away and put the state's position on it. */
+  /* alpha and beta drawn as arrows in one complex plane. Their lengths are the
+     probabilities and the angle BETWEEN them is phi, which the sphere shows.
+     Turning both together is gamma, which it cannot - that is the whole point,
+     and it is visible here as a rigid rotation of the pair.                  */
+  var DIALR = 62;
+  function pt(rad, degCCW) {                       // SVG y runs down, so negate
+    var a = degCCW * DEG;
+    return [rad * Math.cos(a), -rad * Math.sin(a)];
+  }
+  function arcPath(rad, a0, a1) {
+    var d = a1 - a0;
+    if (Math.abs(d) < 0.3) return '';
+    var p0 = pt(rad, a0), p1 = pt(rad, a1);
+    return 'M ' + p0[0].toFixed(2) + ' ' + p0[1].toFixed(2) +
+           ' A ' + rad + ' ' + rad + ' 0 ' + (Math.abs(d) > 180 ? 1 : 0) + ' ' +
+           (d > 0 ? 0 : 1) + ' ' + p1[0].toFixed(2) + ' ' + p1[1].toFixed(2);
+  }
+  function place(id, p, dx, dy) {
+    var e = $(id);
+    e.setAttribute('x', (p[0] + (dx || 0)).toFixed(2));
+    e.setAttribute('y', (p[1] + (dy || 0)).toFixed(2));
+  }
+
   function updatePhase() {
-    var d = gphase / DEG;
+    var gdeg = gphase / DEG;
     var lam = [Math.cos(gphase), Math.sin(gphase)];
     var c = ampsOf(qs.th, qs.ph);
+    var ma = Math.hypot(c[0][0], c[0][1]), mb = Math.hypot(c[1][0], c[1][1]);
+    var argA = gdeg, argB = gdeg + qs.ph;
+
+    // the two hands
+    var pa = pt(DIALR * ma, argA), pb = pt(DIALR * mb, argB);
+    $('armA').setAttribute('x2', pa[0].toFixed(2)); $('armA').setAttribute('y2', pa[1].toFixed(2));
+    $('armB').setAttribute('x2', pb[0].toFixed(2)); $('armB').setAttribute('y2', pb[1].toFixed(2));
+    $('tipA').setAttribute('cx', pa[0].toFixed(2)); $('tipA').setAttribute('cy', pa[1].toFixed(2));
+    $('tipB').setAttribute('cx', pb[0].toFixed(2)); $('tipB').setAttribute('cy', pb[1].toFixed(2));
+    place('labA', pt(DIALR * ma + 13, argA), 0, 4);
+    place('labB', pt(DIALR * mb + 13, argB), 0, 4);
+
+    // gamma: from the real axis round to alpha. phi: from alpha round to beta.
+    $('gamArc').setAttribute('d', arcPath(20, 0, argA));
+    place('labG', pt(29, argA / 2), 0, 4);
+    $('labG').style.display = Math.abs(gdeg) < 6 ? 'none' : '';
+
+    var showPhi = ma > 1e-3 && mb > 1e-3 && qs.ph > 6;
+    $('phiArc').setAttribute('d', showPhi ? arcPath(36, argA, argB) : '');
+    place('labP', pt(45, argA + qs.ph / 2), 0, 4);
+    $('labP').style.display = showPhi ? '' : 'none';
+
+    // readouts
     var full = [cmul(lam, c[0]), cmul(lam, c[1])];
     var t = splitSign(full[1], cfmt);
-
+    $('phMagA').textContent = n(ma) + '   (P0 = ' + n(ma*ma, 4) + ')';
+    $('phMagB').textContent = n(mb) + '   (P1 = ' + n(mb*mb, 4) + ')';
+    $('phPhi').textContent = n(qs.ph, 1) + '\u00b0  angle between the hands';
+    $('phDeg').textContent = n(gdeg, 1) + '\u00b0  turn of the pair';
     $('phFactor').innerHTML = cfmt(lam);
-    $('phDeg').textContent = n(d, 1) + '\u00b0';
     $('phKet').innerHTML = '<span class="k">e<sup>i&gamma;</sup>|&psi;&rang;</span> = ' + cfmt(full[0]) +
       ' <span class="k">|0&rang;</span> ' + t.op + ' ' + (t.simple ? t.txt : '(' + t.txt + ')') +
       ' <span class="k">|1&rang;</span>';
 
-    $('phNeedle').setAttribute('transform', 'rotate(' + (-d).toFixed(3) + ')');
-    $('phDial').classList.toggle('zero', Math.abs(gphase) < 1e-9);
-
-    var r = 24, a = -gphase;                       // SVG y runs down, so negate
-    $('phArc').setAttribute('d', Math.abs(gphase) < 1e-9 ? '' :
-      'M ' + r + ' 0 A ' + r + ' ' + r + ' 0 0 ' + (gphase > 0 ? 0 : 1) + ' ' +
-      (r*Math.cos(a)).toFixed(3) + ' ' + (r*Math.sin(a)).toFixed(3));
+    var r = $('gp'), q = $('gpNum'), rv = Math.round(gdeg);
+    if (document.activeElement !== r) r.value = rv;
+    if (document.activeElement !== q) q.value = rv;
   }
 
   function setState(th, ph) {
@@ -1592,6 +1653,9 @@ body{
   });
 
   bindPair('al', 'alNum', -360, 360, function () {});
+  // gamma picks which member of the ray you are writing down - the state itself
+  // never moves, so this deliberately does not touch qs or the sphere.
+  bindPair('gp', 'gpNum', -180, 180, function (v) { gphase = v * DEG; updatePhase(); });
 
   Array.prototype.forEach.call(document.querySelectorAll('.gate[data-gate]'), function (b) {
     b.addEventListener('click', function () { applyGate(b.getAttribute('data-gate')); });
