@@ -346,6 +346,33 @@ body{
 .ba td.chg{color:var(--gate)}
 .gd-empty{padding:16px 14px;font-size:12.5px;color:var(--ink-3)}
 
+/* ---- the phase dial: the circle the sphere quotients away ---- */
+.phase{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.dial{width:148px;height:148px;flex:0 0 auto}
+.dial .ring{fill:none;stroke:var(--rule);stroke-width:1.5}
+.dial .ax{stroke:var(--rule-soft);stroke-width:1}
+.dial .sweep{fill:none;stroke:var(--gate);stroke-width:2.5;opacity:.4}
+.dial .ndl{stroke:var(--gate);stroke-width:2.5;stroke-linecap:round}
+.dial .nub{fill:var(--gate)}
+.dial .dl{fill:var(--ink-3);font-family:var(--font-mono);font-size:12px;text-anchor:middle}
+.dial.zero .ndl{stroke:var(--ink-3)}
+.dial.zero .nub{fill:var(--ink-3)}
+.dial.zero .sweep{stroke:var(--ink-3)}
+.pv{min-width:0;flex:1 1 200px;display:grid;gap:7px}
+.pv .big{
+  font-family:var(--font-mono);font-size:22px;color:var(--gate);
+  font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:9px;
+}
+.pv .big .lbl{font-family:var(--font-math);font-style:italic;font-size:16px;color:var(--ink-2)}
+.pv .big .lbl sup{font-size:.66em;vertical-align:super;line-height:0}
+.pv .sub{font-family:var(--font-mono);font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.pv .kl{
+  font-family:var(--font-mono);font-size:12.5px;color:var(--ink);
+  overflow-x:auto;white-space:nowrap;padding-bottom:3px;
+}
+.pv .kl .k{font-family:var(--font-math);color:var(--ink-3)}
+.pv .kl .k sup{font-size:.66em;vertical-align:super;line-height:0}
+
 .derived{border-top:1px solid var(--rule-soft);padding:11px 14px}
 .derived .hd{
   font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;
@@ -607,6 +634,38 @@ body{
           <span class="cap">tr &rho;&sup2; = 1 &middot; pure</span>
         </div>
         <p class="callout" id="psiNote" hidden></p>
+      </section>
+
+      <section class="panel">
+        <header>
+          <h2>Global phase</h2>
+          <span class="note">the sphere's missing dimension</span>
+        </header>
+        <div class="panel-body">
+          <div class="phase">
+            <svg class="dial zero" id="phDial" viewBox="-70 -70 140 140" role="img" aria-labelledby="dialTitle">
+              <title id="dialTitle">The accumulated global phase factor, on the unit circle</title>
+              <circle class="ring" cx="0" cy="0" r="46"></circle>
+              <line class="ax" x1="-58" y1="0" x2="58" y2="0"></line>
+              <line class="ax" x1="0" y1="-58" x2="0" y2="58"></line>
+              <path class="sweep" id="phArc" d=""></path>
+              <g id="phNeedle" transform="rotate(0)">
+                <line class="ndl" x1="0" y1="0" x2="43" y2="0"></line>
+                <circle class="nub" cx="43" cy="0" r="4.5"></circle>
+              </g>
+              <text class="dl" x="62" y="4">1</text>
+              <text class="dl" x="0" y="-52">i</text>
+              <text class="dl" x="-62" y="4">&minus;1</text>
+              <text class="dl" x="0" y="63">&minus;i</text>
+            </svg>
+            <div class="pv">
+              <div class="big"><span class="lbl">e<sup>i&gamma;</sup> =</span> <span id="phFactor">1</span></div>
+              <div class="sub"><span class="mvar">&gamma;</span> = <span id="phDeg">0.0&deg;</span></div>
+              <div class="kl" id="phKet"></div>
+            </div>
+          </div>
+        </div>
+        <p class="callout">Every probability above is |&lang;m|&psi;&rang;|&sup2;, and |e<sup>i&gamma;</sup>|&sup2; = 1, so no measurement on this qubit can reveal <span class="mvar">&gamma;</span> &mdash; and &rho; = |&psi;&rang;&lang;&psi;| comes out identical too. A normalised ket carries three real degrees of freedom; the sphere draws two of them. <b>This dial is the third.</b> Only gates move it: the angle sliders, the presets and dragging each declare a fresh state, which by convention is the one with <span class="mvar">&gamma;</span> = 0.</p>
       </section>
     </div>
 
@@ -1196,6 +1255,7 @@ body{
               '), length 1.';
     }
     $('stateNote').innerHTML = note;
+    updatePhase();
   }
 
   function updateRotation() {
@@ -1226,6 +1286,7 @@ body{
      lands - which is why global phase never shows up in the picture.        */
   var SQ = Math.SQRT1_2;
   var gpath = null, lastGate = null, history = [];
+  var gphase = 0;                      // accumulated global phase, radians, wrapped to (-pi, pi]
   var anim = { raf: 0, t0: 0 };
   var REDUCED = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -1243,6 +1304,10 @@ body{
             r[2]*c + cr[2]*s + nn[2]*k];
   }
   function polarDeg(v) { var q = polarOf(v); return { th: q[0]/DEG, ph: q[1]/DEG }; }
+  function wrapPi(a) {
+    a = ((a + Math.PI) % (2*Math.PI) + 2*Math.PI) % (2*Math.PI) - Math.PI;
+    return a <= -Math.PI + 1e-9 ? Math.PI : a;   // show a half turn as +180, not -180
+  }
 
   function cmul(a,b){ return [a[0]*b[0] - a[1]*b[1], a[0]*b[1] + a[1]*b[0]]; }
   function cadd(a,b){ return [a[0] + b[0], a[1] + b[1]]; }
@@ -1315,6 +1380,31 @@ body{
     return null;
   }
 
+  /* The phase dial. The sphere is the set of states modulo this circle, so
+     the only honest way to show gamma is to draw the circle the sphere threw
+     away and put the state's position on it. */
+  function updatePhase() {
+    var d = gphase / DEG;
+    var lam = [Math.cos(gphase), Math.sin(gphase)];
+    var c = ampsOf(qs.th, qs.ph);
+    var full = [cmul(lam, c[0]), cmul(lam, c[1])];
+    var t = splitSign(full[1], cfmt);
+
+    $('phFactor').innerHTML = cfmt(lam);
+    $('phDeg').textContent = n(d, 1) + '\u00b0';
+    $('phKet').innerHTML = '<span class="k">e<sup>i&gamma;</sup>|&psi;&rang;</span> = ' + cfmt(full[0]) +
+      ' <span class="k">|0&rang;</span> ' + t.op + ' ' + (t.simple ? t.txt : '(' + t.txt + ')') +
+      ' <span class="k">|1&rang;</span>';
+
+    $('phNeedle').setAttribute('transform', 'rotate(' + (-d).toFixed(3) + ')');
+    $('phDial').classList.toggle('zero', Math.abs(gphase) < 1e-9);
+
+    var r = 24, a = -gphase;                       // SVG y runs down, so negate
+    $('phArc').setAttribute('d', Math.abs(gphase) < 1e-9 ? '' :
+      'M ' + r + ' 0 A ' + r + ' ' + r + ' 0 0 ' + (gphase > 0 ? 0 : 1) + ' ' +
+      (r*Math.cos(a)).toFixed(3) + ' ' + (r*Math.sin(a)).toFixed(3));
+  }
+
   function setState(th, ph) {
     qs.th = th; qs.ph = ph;
     $('th').value = th;  $('thNum').value = Math.round(th*10)/10;
@@ -1328,14 +1418,16 @@ body{
     if (!g || Math.abs(g.angle) < 1e-9) return;
     var nn = unit(g.axis), r0 = baseVector();
     var after = polarDeg(rodrigues(r0, nn, g.angle*DEG));
+    // whatever phase U leaves on the canonical ket accumulates on the dial
+    var dphase = phaseOf(applyMatrix(g.m, ampsOf(qs.th, qs.ph)));
 
-    history.push({ label: g.label, before: { th: qs.th, ph: qs.ph } });
+    history.push({ label: g.label, before: { th: qs.th, ph: qs.ph }, phase: gphase });
     gpath = { axis: nn, angle: g.angle, r0: r0, frac: 0 };
     lastGate = { g: g, before: { th: qs.th, ph: qs.ph }, after: after };
     renderHistory();
     renderGate();
 
-    if (REDUCED) { gpath.frac = 1; setState(after.th, after.ph); return; }
+    if (REDUCED) { gpath.frac = 1; gphase = wrapPi(gphase + dphase); setState(after.th, after.ph); return; }
     var dur = Math.min(1100, 380 + Math.abs(g.angle)*2.4);
     anim.t0 = performance.now();
     var tick = function (now) {
@@ -1347,6 +1439,7 @@ body{
         anim.raf = requestAnimationFrame(tick);
       } else {
         anim.raf = 0; gpath.frac = 1;
+        gphase = wrapPi(gphase + dphase);
         setState(after.th, after.ph);
       }
     };
@@ -1480,7 +1573,11 @@ body{
   var ctlX = bindPair('vx', 'vxNum', -180, 180, function (v) { rot.x = v; updateRotation(); draw(); });
   var ctlY = bindPair('vy', 'vyNum', -180, 180, function (v) { rot.y = v; updateRotation(); draw(); });
   var ctlZ = bindPair('vz', 'vzNum', -180, 180, function (v) { rot.z = v; updateRotation(); draw(); });
-  function manualEdit() { if (gpath && !anim.raf) clearGatePath(); }
+  function manualEdit() {
+    if (anim.raf) return;
+    gphase = 0;                        // naming a state picks its gamma = 0 representative
+    if (gpath) clearGatePath();
+  }
   var ctlT = bindPair('th', 'thNum', 0, 180, function (v) { qs.th = v; manualEdit(); updateState(); updateRotation(); draw(); });
   var ctlP = bindPair('ph', 'phNum', 0, 360, function (v) { qs.ph = v; manualEdit(); updateState(); updateRotation(); draw(); });
 
@@ -1503,12 +1600,14 @@ body{
     if (anim.raf || !history.length) return;
     var h = history.pop();
     clearGatePath();
+    gphase = h.phase;
     setState(h.before.th, h.before.ph);
   });
   $('clearGates').addEventListener('click', function () {
     if (anim.raf) return;
     history = [];
     clearGatePath();
+    gphase = 0;
     setState(0, 0);
   });
 
